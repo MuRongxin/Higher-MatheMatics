@@ -21,6 +21,7 @@ class NumberAxis(VGroup):
     def __init__(self,
                  x_min: int = -15,
                  x_max: int = 15,
+                 line_length: float = 10,
                  initial_scale: float = 1,
                  center: np.ndarray = ORIGIN,
                  **kwargs):
@@ -28,12 +29,12 @@ class NumberAxis(VGroup):
         self.x_min         = x_min
         self.x_max         = x_max
         self.scale_factor  = initial_scale
-        self.center_offset = center   # 数轴中心相对 Scene 中心的偏移
+        self.center_offset = center # 数轴中心相对 Scene 中心的偏移
         self.seq_dots      = VGroup() # 已经创建的数列点
         self.seq_labels    = VGroup()
         self.seq_n_values  = []      # 每个点对应的n值
         # --- 主刻度 ---
-        self.line   = Line(LEFT*10, RIGHT*10, color=TICK_COLOR)
+        self.line   = Line(LEFT*line_length, RIGHT*line_length, color=TICK_COLOR)
         self.ticks  = VGroup()
         self.labels = VGroup()
         for x in range(self.x_min, self.x_max + 1):
@@ -708,27 +709,35 @@ class specificExample_1(MovingCameraScene):
     def construct(self):
         # 题目
         example=MathTex(
-            r"\text{例：用定义证明数列}x_n = \frac{1}{n}\text{的极限是0 }",
+            r"\text{例：用定义证明数列 }x_n = \frac{1}{n}\text{ 的极限是 0 }",
             font_size=40
         ).to_corner(UL)
         
         define=MathTex(
-            r"\text{由数列极限定义，}\text{对于}\forall \varepsilon > 0 ,\
-            \exists N \in \mathbb{N},\
-            \text{当}n>N\text{时，有}\left | x_n-L \right|<\varepsilon"
-        ,color=BLUE_D).scale(0.7).next_to(example,DOWN,buff=.4).align_to(example,LEFT)
+            r"\text{由数列极限定义，}\text{对于}\forall \varepsilon > 0 ,",
+            r"\exists N \in \mathbb{N},\text{当}",
+            r"n>N",
+            r"\text{时，有}\left | x_n-L \right|<\varepsilon",
+            color=BLUE_D
+        ).scale(0.7).next_to(example,DOWN,buff=.4).align_to(example,LEFT)
+        
+        # define = VGroup(
+        #     MathTex(r"\text{由数列极限定义，}\text{对于}\forall \varepsilon > 0 ,\exists N \in \mathbb{N},\text{当}", color=BLUE_D),
+        #     MathTex(r"n>N", color=BLUE_D),                       # 0
+        #     MathTex(r"\text{时，有}\left | x_n-L \right|<\varepsilon", color=BLUE_D)
+        # ).arrange(RIGHT,buff=.1).scale(0.7).next_to(example,DOWN,buff=.4).align_to(example,LEFT)
         
         description=MathTex(
             r"\text{该数列的极限值 L = 0 , 需要根据 ε 的取值，确定 N 的值，}"           
             r"\text{证明的关键点就是确定N值.}", 
             font_size=25).next_to(define,DOWN,buff=.3).align_to(define,LEFT)
 
-        emphasizeRect=Rectangle(
-            width=2,
-            height=0.8,
-            color=RED,
-            stroke_width=3
-        ).move_to(np.array([.5,2,0]))
+        emphasizeRect_target=define[2]
+        emphasizeRect=SurroundingRectangle(
+            emphasizeRect_target,
+            color=RED,           
+            stroke_width=2
+        )
 
         emphasizeText=Text(
             "注意，这里的N、n是自然数，指的是项数，不是数列值",
@@ -738,11 +747,12 @@ class specificExample_1(MovingCameraScene):
         proof=MathTex(
             r"\text{由定义可得：}\left |\frac{1}{n}-0\right |<\varepsilon",
             r"\Rightarrow \frac{1}{n}<\varepsilon",
-            r"\Rightarrow n>\frac{1}{\varepsilon}",
+            r"\Rightarrow ",
+            r"n>\frac{1}{\varepsilon}",
             font_size=27         
         ).next_to(description,DOWN,buff=.7).align_to(description,LEFT)
         
-        target_proof_1 = proof[2]
+        target_proof_1 = proof[3]
         rect_proof_1 = SurroundingRectangle(
             target_proof_1, 
             color=YELLOW, buff=0.1, 
@@ -760,24 +770,78 @@ class specificExample_1(MovingCameraScene):
         def printProof_2():
             proof_2=MathTex(
                 r"\text{要注意的是，}\frac{1}{\varepsilon}\text{是一个具体的正数,}",
-                r"\text{可以很自然的想到让} N = \frac{1}{\varepsilon}",
+                r"\text{我们可以很自然的想到让} N = \frac{1}{\varepsilon}",
                 r"\text{就能满足定义中的”当} n>N \text{时“}",
                 font_size=27,
                 color=BLUE_C  
             )            
             return proof_2
         
+        def printProof_3():
+            proof_3=MathTex(
+                r"\text{但是，} \frac{1}{\varepsilon} \text{不一定是整数,}\
+                \text{而N必须取整数.}",
+                font_size=27,
+                color=RED_B  
+            )
+            return proof_3
+        
+        def printProof_4():
+            proof_4=MathTex(
+                r"\text{所以，我们可以另 N 为}  \text{比}\frac{1}{\varepsilon}\
+                \text{大的任意一个整数，即 N }\geq \frac{1}{\varepsilon} ,N \in \mathbb{N}",
+                # r"\text{，所以，} ",
+                r"\text{，就能保证} ",
+                font_size=27,
+                color=BLUE_C  
+            )
+            return proof_4  
+        
+        proof_5=MathTex(
+            r"n>N\geq \frac{1}{\varepsilon}",
+            r"\Rightarrow ",
+            r"n > \frac{1}{\varepsilon}",
+            font_size=30,
+            color=RED
+        ).to_edge(DOWN,buff=0.5)
         
         
+        target_proof_5=proof_5.get_part_by_tex( r"n > \frac{1}{\varepsilon}")
+        rect_proof_5 = SurroundingRectangle(
+            target_proof_5, 
+            color=YELLOW, 
+            stroke_width=3)
         
+        def printProof_6():
+            proof_6=MathTex(
+                r"\text{就有，} \left | \frac{1}{n} - 0 \right | <\varepsilon ",
+                r"\text{，即：}\lim_{ n\to\infty}\frac{1}{n}=0  ",
+                font_size=30,
+                  
+            )
+            return proof_6
         
+        def printProof_7(width=3,height=.7):
+            emphasizeRect_2=Rectangle(
+                width=width,
+                height=height,
+                color=RED_D,
+            )
+            return emphasizeRect_2
         
-        
-        
-        
-        
-        
-        
+        def printProof_8():
+            proof_8=MathTex(
+                r"\text{可以用数学符号表示： } N = \lceil \frac{1}{\varepsilon} \rceil ",
+                r"\text{； 意思为不小于} \frac{1}{\varepsilon} \text{的最小整数；}",
+                r"\text{“} \lceil \text{ } \rceil\text{”}\text{为向上取整} ",                
+                font_size=25,            
+            )
+
+            proof_9=MathTex(
+                r"\text{比如：} \lceil 1.2 \rceil = 2,\lceil 2.7 \rceil = 3",
+                font_size=25,
+            )
+            return proof_8,proof_9
         
 #======动画播放区间=============================
         self.play(Write(example))
@@ -799,6 +863,61 @@ class specificExample_1(MovingCameraScene):
         proof_2=printProof_2()
         proof_2.next_to(proof_1,DOWN,buff=.2).align_to(proof_1,LEFT)
         self.play(Write(proof_2))   
-
         self.wait(1)
 
+        proof_3=printProof_3()
+        proof_3.next_to(proof_2,DOWN,buff=.2).align_to(proof_2,LEFT)
+        self.play(Write(proof_3))
+        self.wait(1)
+
+        proof_4=printProof_4()
+        proof_4.next_to(proof_3,DOWN,buff=.2).align_to(proof_3,LEFT)
+        self.play(Write(proof_4))
+        self.wait(.8)
+
+        self.play(Write(proof_5))
+        self.wait(.8)
+        self.play(Create(rect_proof_5),Create(rect_proof_1))
+        self.wait(.9)
+
+        self.play(Uncreate(rect_proof_1),Uncreate(rect_proof_5))
+        self.play(proof_5.animate.shift(LEFT*5))
+
+        proof_6=printProof_6()
+        proof_6.next_to(proof_5,RIGHT,buff=.2)
+        self.play(Write(proof_6))
+        self.wait(2)
+
+        self.play(Uncreate(proof_3),Uncreate(proof_2))
+       
+
+        proof_7=printProof_7()
+        proof_7.move_to(proof_4.get_center()).shift(LEFT*.5)
+        self.play(Write(proof_7))
+        self.wait(.8)
+
+        proof_8,proof_9=printProof_8()
+        proof_8.next_to(proof_7,UP,buff=.8).shift(RIGHT*2.8)
+        proof_9.next_to(proof_8,DOWN,buff=.2).align_to(proof_8,LEFT)
+
+        
+        
+        self.play(
+            Create(
+                SurroundingRectangle(
+                VGroup(proof_8,proof_9)
+                )
+            ),
+            Write(proof_8),Write(proof_9)
+        )
+
+
+        self.wait(2)
+        
+
+
+class SpecificExampleGraph_1(MovingCameraScene):
+    def construct(self):
+        axes=NumberAxis()       
+        self.play(Create(axes))
+        self.wait(1)
