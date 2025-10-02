@@ -121,7 +121,9 @@ class EnhancedNumberAxis(VGroup):
         end: float,     # 子刻度结束位置
         step: float = 0.1,   # 子刻度间隔，默认为0.1
         animate: bool = False,  # 是否启用动画效果，默认为False
-        scene: Optional[Scene] = None  # 传入Scene以执行动画
+        scene: Optional[Scene] = None,  # 传入Scene以执行动画
+        font_size =SUB_TICK_FS,
+        include_numbers:bool = True
     ):
         """在指定区间添加子刻度"""
         if step <= 0:
@@ -149,14 +151,14 @@ class EnhancedNumberAxis(VGroup):
                 tick.move_to(self._x2pos(x))
                 self.sub_ticks.add(tick)
                              
-            
-                label = Text(
-                    f"{x:.1f}", 
-                    font_size=SUB_TICK_FS, 
-                    color=SUB_TICK_COLOR
-                )
-                label.next_to(tick, DOWN, buff=0.1)
-                self.sub_labels.add(label)
+                if include_numbers:
+                    label = Text(
+                        f"{x:.1f}", 
+                        font_size=font_size, 
+                        color=SUB_TICK_COLOR
+                    )
+                    label.next_to(tick, DOWN, buff=0.1)
+                    self.sub_labels.add(label)
         
         # 更新组件
         # self.remove(self.sub_ticks, self.sub_labels)
@@ -194,7 +196,9 @@ class EnhancedNumberAxis(VGroup):
         scene: Scene, 
         func: Callable[[int], float] = lambda n: 1/n,
         label_func: Optional[Callable[[int], str]] = None,
-        run_time: float = ANIM_TIME
+        run_time: float = ANIM_TIME,
+        lable_size:int = LABEL_FS,
+        isPlay:bool = True
     ):
         """添加数列点，支持自定义函数"""
         for n in range(n_start, n_end + 1):
@@ -212,21 +216,23 @@ class EnhancedNumberAxis(VGroup):
             
             # 使用MathTex或Text取决于内容
             if any(c in label_text for c in ['_', '^', '\\']):
-                label = MathTex(f"\\boldsymbol{{{label_text}}}", font_size=LABEL_FS, color=LABEL_COLOR)
+                label = MathTex(f"\\boldsymbol{{{label_text}}}", font_size=lable_size, color=LABEL_COLOR)
             else:
-                label = Text(label_text, font_size=LABEL_FS, color=LABEL_COLOR, weight=BOLD)
+                label = Text(label_text, font_size=lable_size, color=LABEL_COLOR)#, weight=BOLD)
 
             # 交替显示标签位置
             direction = DOWN if n % 2 == 0 else UP
-            label.next_to(dot, direction, buff=0.2)
+            label.next_to(dot, direction, buff=0.2).align_to(dot, LEFT)
             
             self.seq_dots.add(dot)
             self.seq_labels.add(label)
-            self.seq_n_values.append(n)
-            
-            scene.play(FadeIn(dot), Write(label), run_time=run_time)
-            scene.wait(run_time/2)
-    
+            self.seq_n_values.append(n)           
+            if isPlay:
+                scene.play(FadeIn(dot), Write(label), run_time=run_time)
+                scene.wait(run_time/2)
+        
+        if not isPlay:
+            scene.play(FadeIn(self.seq_dots[n_start-1:n_end]), Write(self.seq_labels[n_start-1:n_end]), run_time=run_time)
     def add_function_points(
         self,
         func: Callable[[float], float],
@@ -267,9 +273,12 @@ class EnhancedNumberAxis(VGroup):
         new_points: Optional[Tuple[int, int]] = None,
         scene: Optional[Scene] = None, 
         run_time: float = ZOOM_TIME,
+        pointLablesize:int = LABEL_FS,
+        isPlayPoint:bool = True,
         sequence_func: Optional[Callable[[int], float]] = None,       
         sub_tick_range: Optional[Tuple[float, float]] = None,
-        sub_tick_step: Optional[float] = None
+        sub_tick_step: Optional[float] = None,
+        otherAnimationsTicks: Optional[List[Animation]] = None,
     ):
         """缩放动画，支持中心点移动和子刻度更新"""
         if new_center is not None:
@@ -332,15 +341,15 @@ class EnhancedNumberAxis(VGroup):
         for label, dot, n in zip(self.seq_labels, self.seq_dots, self.seq_n_values):
             a_n = sequence_func(n) if sequence_func is not None else 1/n
             direction = DOWN if n % 2 == 0 else UP
-            if n <= 9 and sequence_func is None:
+            if n <= 3 and sequence_func is None:
                 label_text = f"a_{{{n}}} = {a_n:.2f}"
             else:
                 label_text = f"a_{{{n}}}"
             
             if any(c in label_text for c in ['_', '^', '\\']):
-                new_label = MathTex(label_text, font_size=LABEL_FS, color=LABEL_COLOR)
+                new_label = MathTex(label_text, font_size=pointLablesize, color=LABEL_COLOR)
             else:
-                new_label = Text(label_text, font_size=LABEL_FS, color=LABEL_COLOR)
+                new_label = Text(label_text, font_size=pointLablesize, color=LABEL_COLOR)
             
             new_label.next_to(self._x2pos(a_n), direction, buff=0.2)
             anims.append(Transform(label, new_label))
@@ -370,6 +379,9 @@ class EnhancedNumberAxis(VGroup):
             new_label.next_to(self._x2pos(x), UP, buff=0.2)
             anims.append(Transform(label, new_label))
         
+        if otherAnimationsTicks is not None:
+            anims.append(otherAnimationsTicks)
+
         # 执行动画
         if scene is not None:
             scene.play(*anims, run_time=run_time)
@@ -391,7 +403,9 @@ class EnhancedNumberAxis(VGroup):
                     new_points[1],
                     scene=scene,                     
                     func=sequence_func if sequence_func is not None else lambda n: 1/n,                   
-                    run_time=run_time/2
+                    run_time=run_time/2,
+                    lable_size=pointLablesize,
+                    isPlay=isPlayPoint
                 )
     
     def _pos2x(self, pos: np.ndarray) -> float:

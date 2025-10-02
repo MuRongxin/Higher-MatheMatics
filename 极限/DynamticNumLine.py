@@ -21,6 +21,7 @@ class NumberAxis(VGroup):
     def __init__(self,
                  x_min: int = -15,
                  x_max: int = 15,
+                 line_length: float = 10,
                  initial_scale: float = 1,
                  center: np.ndarray = ORIGIN,
                  **kwargs):
@@ -28,12 +29,12 @@ class NumberAxis(VGroup):
         self.x_min         = x_min
         self.x_max         = x_max
         self.scale_factor  = initial_scale
-        self.center_offset = center   # 数轴中心相对 Scene 中心的偏移
+        self.center_offset = center # 数轴中心相对 Scene 中心的偏移
         self.seq_dots      = VGroup() # 已经创建的数列点
         self.seq_labels    = VGroup()
         self.seq_n_values  = []      # 每个点对应的n值
         # --- 主刻度 ---
-        self.line   = Line(LEFT*10, RIGHT*10, color=TICK_COLOR)
+        self.line   = Line(LEFT*line_length, RIGHT*line_length, color=TICK_COLOR)
         self.ticks  = VGroup()
         self.labels = VGroup()
         for x in range(self.x_min, self.x_max + 1):
@@ -708,27 +709,35 @@ class specificExample_1(MovingCameraScene):
     def construct(self):
         # 题目
         example=MathTex(
-            r"\text{例：用定义证明数列}x_n = \frac{1}{n}\text{的极限是0 }",
+            r"\text{例：用定义证明数列 }x_n = \frac{1}{n}\text{ 的极限是 0 }",
             font_size=40
         ).to_corner(UL)
         
         define=MathTex(
-            r"\text{由数列极限定义，}\text{对于}\forall \varepsilon > 0 ,\
-            \exists N \in \mathbb{N},\
-            \text{当}n>N\text{时，有}\left | x_n-L \right|<\varepsilon"
-        ,color=BLUE_D).scale(0.7).next_to(example,DOWN,buff=.4).align_to(example,LEFT)
+            r"\text{由数列极限定义，}\text{对于}\forall \varepsilon > 0 ,",
+            r"\exists N \in \mathbb{N},\text{当}",
+            r"n>N",
+            r"\text{时，有}\left | x_n-L \right|<\varepsilon",
+            color=BLUE_D
+        ).scale(0.7).next_to(example,DOWN,buff=.4).align_to(example,LEFT)
+        
+        # define = VGroup(
+        #     MathTex(r"\text{由数列极限定义，}\text{对于}\forall \varepsilon > 0 ,\exists N \in \mathbb{N},\text{当}", color=BLUE_D),
+        #     MathTex(r"n>N", color=BLUE_D),                       # 0
+        #     MathTex(r"\text{时，有}\left | x_n-L \right|<\varepsilon", color=BLUE_D)
+        # ).arrange(RIGHT,buff=.1).scale(0.7).next_to(example,DOWN,buff=.4).align_to(example,LEFT)
         
         description=MathTex(
             r"\text{该数列的极限值 L = 0 , 需要根据 ε 的取值，确定 N 的值，}"           
             r"\text{证明的关键点就是确定N值.}", 
             font_size=25).next_to(define,DOWN,buff=.3).align_to(define,LEFT)
 
-        emphasizeRect=Rectangle(
-            width=2,
-            height=0.8,
-            color=RED,
-            stroke_width=3
-        ).move_to(np.array([.5,2,0]))
+        emphasizeRect_target=define[2]
+        emphasizeRect=SurroundingRectangle(
+            emphasizeRect_target,
+            color=RED,           
+            stroke_width=2
+        )
 
         emphasizeText=Text(
             "注意，这里的N、n是自然数，指的是项数，不是数列值",
@@ -738,11 +747,12 @@ class specificExample_1(MovingCameraScene):
         proof=MathTex(
             r"\text{由定义可得：}\left |\frac{1}{n}-0\right |<\varepsilon",
             r"\Rightarrow \frac{1}{n}<\varepsilon",
-            r"\Rightarrow n>\frac{1}{\varepsilon}",
+            r"\Rightarrow ",
+            r"n>\frac{1}{\varepsilon}",
             font_size=27         
         ).next_to(description,DOWN,buff=.7).align_to(description,LEFT)
         
-        target_proof_1 = proof[2]
+        target_proof_1 = proof[3]
         rect_proof_1 = SurroundingRectangle(
             target_proof_1, 
             color=YELLOW, buff=0.1, 
@@ -760,24 +770,78 @@ class specificExample_1(MovingCameraScene):
         def printProof_2():
             proof_2=MathTex(
                 r"\text{要注意的是，}\frac{1}{\varepsilon}\text{是一个具体的正数,}",
-                r"\text{可以很自然的想到让} N = \frac{1}{\varepsilon}",
+                r"\text{我们可以很自然的想到让} N = \frac{1}{\varepsilon}",
                 r"\text{就能满足定义中的”当} n>N \text{时“}",
                 font_size=27,
                 color=BLUE_C  
             )            
             return proof_2
         
+        def printProof_3():
+            proof_3=MathTex(
+                r"\text{但是，} \frac{1}{\varepsilon} \text{不一定是整数,}\
+                \text{而N必须取整数.}",
+                font_size=27,
+                color=RED_B  
+            )
+            return proof_3
+        
+        def printProof_4():
+            proof_4=MathTex(
+                r"\text{所以，我们可以另 N 为}  \text{比}\frac{1}{\varepsilon}\
+                \text{大的任意一个整数，即 N }\geq \frac{1}{\varepsilon} ,N \in \mathbb{N}",
+                # r"\text{，所以，} ",
+                r"\text{，就能保证} ",
+                font_size=27,
+                color=BLUE_C  
+            )
+            return proof_4  
+        
+        proof_5=MathTex(
+            r"n>N\geq \frac{1}{\varepsilon}",
+            r"\Rightarrow ",
+            r"n > \frac{1}{\varepsilon}",
+            font_size=30,
+            color=RED
+        ).to_edge(DOWN,buff=0.5)
         
         
+        target_proof_5=proof_5.get_part_by_tex( r"n > \frac{1}{\varepsilon}")
+        rect_proof_5 = SurroundingRectangle(
+            target_proof_5, 
+            color=YELLOW, 
+            stroke_width=3)
         
+        def printProof_6():
+            proof_6=MathTex(
+                r"\text{就有，} \left | \frac{1}{n} - 0 \right | <\varepsilon ",
+                r"\text{，即：}\lim_{ n\to\infty}\frac{1}{n}=0  ",
+                font_size=30,
+                  
+            )
+            return proof_6
         
+        def printProof_7(width=3,height=.7):
+            emphasizeRect_2=Rectangle(
+                width=width,
+                height=height,
+                color=RED_D,
+            )
+            return emphasizeRect_2
         
-        
-        
-        
-        
-        
-        
+        def printProof_8():
+            proof_8=MathTex(
+                r"\text{可以用数学符号表示： } N = \lceil \frac{1}{\varepsilon} \rceil ",
+                r"\text{； 意思为不小于} \frac{1}{\varepsilon} \text{的最小整数；}",
+                r"\text{“} \lceil \text{ } \rceil\text{”}\text{为向上取整} ",                
+                font_size=25,            
+            )
+
+            proof_9=MathTex(
+                r"\text{比如：} \lceil 1.2 \rceil = 2,\lceil 2.7 \rceil = 3",
+                font_size=25,
+            )
+            return proof_8,proof_9
         
 #======动画播放区间=============================
         self.play(Write(example))
@@ -799,6 +863,265 @@ class specificExample_1(MovingCameraScene):
         proof_2=printProof_2()
         proof_2.next_to(proof_1,DOWN,buff=.2).align_to(proof_1,LEFT)
         self.play(Write(proof_2))   
-
         self.wait(1)
 
+        proof_3=printProof_3()
+        proof_3.next_to(proof_2,DOWN,buff=.2).align_to(proof_2,LEFT)
+        self.play(Write(proof_3))
+        self.wait(1)
+
+        proof_4=printProof_4()
+        proof_4.next_to(proof_3,DOWN,buff=.2).align_to(proof_3,LEFT)
+        self.play(Write(proof_4))
+        self.wait(.8)
+
+        self.play(Write(proof_5))
+        self.wait(.8)
+        self.play(Create(rect_proof_5),Create(rect_proof_1))
+        self.wait(.9)
+
+        self.play(Uncreate(rect_proof_1),Uncreate(rect_proof_5))
+        self.play(proof_5.animate.shift(LEFT*5))
+
+        proof_6=printProof_6()
+        proof_6.next_to(proof_5,RIGHT,buff=.2)
+        self.play(Write(proof_6))
+        self.wait(2)
+
+        self.play(Uncreate(proof_3),Uncreate(proof_2))
+       
+
+        proof_7=printProof_7()
+        proof_7.move_to(proof_4.get_center()).shift(LEFT*.5)
+        self.play(Write(proof_7))
+        self.wait(.8)
+
+        proof_8,proof_9=printProof_8()
+        proof_8.next_to(proof_7,UP,buff=.8).shift(RIGHT*2.8)
+        proof_9.next_to(proof_8,DOWN,buff=.2).align_to(proof_8,LEFT)
+
+        
+        
+        self.play(
+            Create(
+                SurroundingRectangle(
+                VGroup(proof_8,proof_9)
+                )
+            ),
+            Write(proof_8),Write(proof_9)
+        )
+
+
+        self.wait(2)
+        
+
+
+
+
+
+
+from DynamaticLine import EnhancedNumberAxis
+
+class specificExampleGraph_1(Scene):
+    def construct(self):
+        axes=EnhancedNumberAxis(
+            x_range=(-2,2,1),
+            initial_scale=2.0,
+            center= DOWN,
+        )
+
+        example=MathTex(
+            r"\text{数列 }x_n = \frac{1}{n}\text{ 极限为 0 的动态演示 }",
+            font_size=40
+        ).to_corner(UL)
+
+        proof=MathTex(
+            r"\text{由定义可得：}\left |\frac{1}{n}-0\right |<\varepsilon",
+            r"\Rightarrow \frac{1}{n}<\varepsilon",
+            r"\Rightarrow ",
+            r"n>\frac{1}{\varepsilon}",
+            r"\Rightarrow ",
+            r"N = \lceil \frac{1}{\varepsilon} \rceil",
+            font_size=27,
+            stroke_width=2,
+            color=GOLD,         
+        ).next_to(example,DOWN,buff=.3).align_to(example,LEFT)
+
+#=================================================================>        
+        epsilon=ValueTracker(.5)
+        limitValue=0
+#=================================================================>
+        self.play(Write(example),run_time=.8)
+        self.play(Write(proof))
+        self.wait(.5)
+
+
+
+        
+        self.play(Create(axes.line),Create(axes.ticks),Create(axes.labels))
+        
+        axes.add_sub_ticks(-1,1,animate=True,scene=self,font_size=11)
+        # self.wait(1)
+
+        axes.zoom_to(
+            new_scale=5.0,
+            new_center= DOWN,
+            new_points=None,
+            scene=self,           
+            sub_tick_range=None,
+            sub_tick_step=.1,
+            sequence_func=lambda n: 1/n
+        )        
+        
+        assumingTex=always_redraw(lambda: MathTex(
+            r"\text{若假设 } \varepsilon = \text{ }",
+            f"{epsilon.get_value():.2f}",
+            r"\text{，此时极限的 }\varepsilon\text{邻域为 }",
+            f"(-{epsilon.get_value():.2f},{epsilon.get_value():.2f})", 
+            r"\text{，} N = \lceil \frac{1}{\varepsilon} \rceil = " ,
+            rf"\lceil \frac{1}{{{epsilon.get_value():.2f}}} \rceil = {np.ceil(1/epsilon.get_value()):.2f}",
+            
+            font_size=27,
+            ).next_to(proof,DOWN,buff=.3).align_to(proof,LEFT)
+        )
+        
+        surrendAssuTex_1=SurroundingRectangle(
+            assumingTex[1],
+            buff=.07,
+            color=ManimColor("#39c5bb")
+        )
+
+        assumingTex_2=always_redraw(lambda: MathTex(
+                    r"\text{{意味着从 }",
+                    rf"\text{{第}}{int(np.ceil(1/epsilon.get_value()))}\text{{项}}",
+                    r"\text{开始数列的取值进入邻域，即}",
+                    # r"\lvert x_n - 0 \rvert < \varepsilon",
+                    font_size=27,
+                    color=ManimColor("#39c5bb")
+                    ).next_to(assumingTex,DOWN,buff=.3).align_to(assumingTex,LEFT)
+        )
+        assumingTex_3= MathTex(
+            r"\lvert x_n - 0 \rvert < \varepsilon",
+                    font_size=27,
+                    color=ManimColor("#39c5bb")
+        ).next_to(assumingTex_2,RIGHT,buff=.2)
+
+        surrendAssuTex_2=SurroundingRectangle(
+            assumingTex_2[1],
+            buff=.07,
+            color=WHITE
+        )
+        def GetrecNumberhood(scale_factor,epsilonVlaue):
+            axes.scale_factor=scale_factor
+            recNumberhood=Rectangle(
+            width=2*axes._x2pos(epsilonVlaue)[0],
+            height=1,
+            fill_color=BLUE,
+            fill_opacity=.2,
+            stroke_width=0,
+            ).move_to(axes._x2pos(limitValue))            
+            return recNumberhood
+
+        def GetNerberHoodline(epsilonVlaue,edge):
+            nerberHoodline=DashedLine(
+                start=UP*0.5,
+                end=DOWN*0.5,
+                stroke_width=3,
+                stroke_color=WHITE,
+            ).move_to(
+                axes._x2pos(epsilonVlaue)if edge is 1 
+                else axes._x2pos(-epsilonVlaue))
+            return nerberHoodline
+           
+        
+
+        self.play(Create(assumingTex))
+        self.play(Create(assumingTex_2),Create(assumingTex_3))
+        self.play(Create(surrendAssuTex_1),Create(surrendAssuTex_2))    
+        recNumberhood_1=GetrecNumberhood(5,.5)
+        lineNeigberhood_left=GetNerberHoodline(.5,-1)
+        lineNeigberhood_right=GetNerberHoodline(.5,1)
+        self.play(Create(recNumberhood_1),
+                  Create(lineNeigberhood_left),
+                  Create(lineNeigberhood_right)
+                )       
+        self.wait(.3)
+        axes.zoom_to(
+            new_scale=5.0,
+            new_center= DOWN,
+            new_points=(1,10),
+            scene=self,   
+            pointLablesize=20,
+            run_time=.5,
+            sequence_func=lambda n: 1/n
+        ) 
+       
+       
+         
+        
+        # self.play(epsilon.animate.set_value(.3),run_time=2.5)
+        # GetrecNumberhood 和 GetNerberHoodline 按照顺序调用
+        recNumberhood_2=GetrecNumberhood(10,.3)
+        lineNeigberhood_left_2=GetNerberHoodline(.3,-1)
+        lineNeigberhood_right_2=GetNerberHoodline(.3,1)
+        axes.zoom_to(
+            new_scale=10.0,
+            scene=self,
+            otherAnimationsTicks=[
+                ReplacementTransform(recNumberhood_1,recNumberhood_2),
+                ReplacementTransform(lineNeigberhood_left,lineNeigberhood_left_2),
+                ReplacementTransform(lineNeigberhood_right,lineNeigberhood_right_2),
+                epsilon.animate.set_value(.3)               
+            ],
+            pointLablesize=20,           
+            run_time=2.5
+        )
+        
+        self.wait(1)
+
+        recNumberhood_3=GetrecNumberhood(10,.2)
+        lineNeigberhood_left_3=GetNerberHoodline(.2,-1)
+        lineNeigberhood_right_3=GetNerberHoodline(.2,1)
+
+        self.play(
+            epsilon.animate.set_value(.2),
+            ReplacementTransform(recNumberhood_2,recNumberhood_3),
+            ReplacementTransform(lineNeigberhood_left_2,lineNeigberhood_left_3),
+            ReplacementTransform(lineNeigberhood_right_2,lineNeigberhood_right_3),
+            run_time=2.5
+            )
+        
+        self.wait(1)
+
+        recNumberhood_4=GetrecNumberhood(10,.1)
+        lineNeigberhood_left_4=GetNerberHoodline(.1,-1)
+        lineNeigberhood_right_4=GetNerberHoodline(.1,1)
+
+        self.play(
+            epsilon.animate.set_value(.1),
+            ReplacementTransform(recNumberhood_3,recNumberhood_4),
+            ReplacementTransform(lineNeigberhood_left_3,lineNeigberhood_left_4),
+            ReplacementTransform(lineNeigberhood_right_3,lineNeigberhood_right_4),
+            run_time=2
+            )
+        
+
+        self.wait(1)
+        
+        recNumberhood_5=GetrecNumberhood(41,.1)
+        lineNeigberhood_left_5=GetNerberHoodline(.1,-1)
+        lineNeigberhood_right_5=GetNerberHoodline(.1,1)
+
+        axes.zoom_to(
+            new_scale=41.0,
+            scene=self,
+            new_points=(11,17),
+            otherAnimationsTicks=[
+                ReplacementTransform(recNumberhood_4,recNumberhood_5),
+                ReplacementTransform(lineNeigberhood_left_4,lineNeigberhood_left_5),
+                ReplacementTransform(lineNeigberhood_right_4,lineNeigberhood_right_5),                             
+            ],
+            pointLablesize=20,    
+            isPlayPoint=False,       
+            run_time=2            
+        )            
