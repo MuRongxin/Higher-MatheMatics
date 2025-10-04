@@ -381,33 +381,39 @@ class SequenceLimitWithZoom(ZoomedScene,MovingCameraScene):
 
         # 极限值 L = 0
         L = 0
-        limit_line = Line(axes.c2p(0, L), axes.c2p(x_amx_length, L), color=YELLOW, stroke_width=2)
-
+        limit_line_width=ValueTracker(2)
+        limit_line = always_redraw(lambda:
+            Line(axes.c2p(0, L), axes.c2p(x_amx_length, L), color=YELLOW, stroke_width=limit_line_width.get_value())
+        )
         self.play(Create(title_1))
-        self.wait(1)
+        self.wait(.4)
         self.play(Transform(title_1,title))
         
         self.play(*axes_Anime)
         
         
         # 添加极限标签
-        limit_label = MathTex(r"\text{数列} \frac{sin(n)}{n}\text{的极限数值为： }L = 0",font_size=27).next_to(limit_line, UP, buff=0.8)
-        self.play(Write(limit_label))
-        self.play(Create(limit_line))
+        limit_label = MathTex(
+            rf"\text{{数列}} \frac{{sin(n)}}{{n}}\text{{的极限数值L为：}} {L}",
+            color=ManimColor("#39c5bb"),
+            stroke_width=1.5,
+            font_size=27)
+        
 
         # 定义 epsilon 邻域
+        epsilon_band_width =ValueTracker(4)
         epsilon = ValueTracker(0.1)
         epsilon_band_upper = always_redraw(lambda: DashedLine(
             axes.c2p(0, L + epsilon.get_value()), 
             axes.c2p(x_amx_length, L + epsilon.get_value()), 
-            color=GREEN_B, 
-            stroke_width=4
+            color=ManimColor("#3fc1c9"), 
+            stroke_width=epsilon_band_width.get_value()
         ))
         epsilon_band_lower = always_redraw(lambda: DashedLine(
             axes.c2p(0, L - epsilon.get_value()), 
             axes.c2p(x_amx_length, L - epsilon.get_value()), 
-            color=GREEN_B, 
-            stroke_width=4            
+            color=ManimColor("#3fc1c9"), 
+            stroke_width=epsilon_band_width .get_value()          
         ))
        
         # 创建邻域区域
@@ -419,37 +425,47 @@ class SequenceLimitWithZoom(ZoomedScene,MovingCameraScene):
             stroke_width=0
         ).move_to(axes.c2p(x_amx_length/2, L)))
         # 添加 epsilon 标签
-        epsilon_label = always_redraw(lambda: 
-                                      MathTex(r"\varepsilon \text{取值为：} "+
-                                              f"{epsilon.get_value():.2f}",
-                                              font_size=27)
-                                              .next_to(limit_label, RIGHT, buff=0.3))
+        def get_epsilon_label():
+            return MathTex(r"\text{若 }\varepsilon \text{取值为：} ",
+                           f"{epsilon.get_value():.2f}",
+                            font_size=27
+                            ).next_to(limit_line, UP, buff=0.5)
+        epsilon_label = always_redraw(get_epsilon_label)
 
         epsilon_label_upper = always_redraw(lambda: MathTex(r"L + \varepsilon ",font_size=27).next_to(epsilon_band_upper, LEFT, buff=0.1))
         epsilon_label_lower = always_redraw(lambda: MathTex(r"L - \varepsilon ",font_size=27).next_to(epsilon_band_lower, LEFT, buff=0.1))
         
         # 显示极限定义
-        text_1=Text("由数列极限的定义：",font_size=25)
+        text_1=MathTex(r"\text{由数列极限的定义：}",font_size=25)
         definition_1 = MathTex(
-            r"\forall \varepsilon > 0, \exists N \in \mathbb{N}, \forall n > N, |x_n - L| < \varepsilon"
-        ).scale(0.5)
-        text_2=Text("我们可得：",font_size=25)
+            r"\forall \varepsilon > 0, \exists N \in \mathbb{N}, \
+            \forall n > N, |x_n - L| < \varepsilon",
+            font_size=25
+        )
+        text_2=MathTex(r"\text{我们可得：}",font_size=25)
         definition_2 = MathTex(
             r"\text{极限 L 的} \varepsilon \text{领域:}(L- \varepsilon,L+\varepsilon)"
-            ).scale(0.5)
+            ,font_size=25)
 
         defi=VGroup(text_1,definition_1,text_2).arrange(RIGHT)
 
         definition=VGroup(defi,
                           definition_2
-                          ).arrange(DOWN,aligned_edge=RIGHT).move_to(axes.c2p(44,1))
+            ).arrange(DOWN,aligned_edge=RIGHT).next_to(title_1,DOWN,aligned_edge=RIGHT,buff=0.5)
        
 
         self.play(Write(definition))
+        self.play(Write(limit_label),
+                  limit_label.animate.next_to(
+                      definition,DOWN,aligned_edge=RIGHT))
+        
+        self.play(Create(limit_line))
+        self.play(Write(epsilon_label))
+        
         self.play(Create(epsilon_band_upper), 
                   Create(epsilon_band_lower),
-                  Create(epsilon_region),
-                  Write(epsilon_label))
+                  Create(epsilon_region)
+        )
 
         self.wait(.5)
         indicate_region=SurroundingRectangle(epsilon_region, color=RED, buff=0.1)
@@ -505,7 +521,7 @@ class SequenceLimitWithZoom(ZoomedScene,MovingCameraScene):
             40: 1.5,
             44: 1.5,
             50: 1.5,
-            58: 2,           
+            # 58: 1.5,           
         }
 
         
@@ -569,7 +585,7 @@ class SequenceLimitWithZoom(ZoomedScene,MovingCameraScene):
         
         zoom_area_2 = Rectangle(
             width=3,
-            height=1.5,
+            height=1.3,
             color=WHITE,
             stroke_width=2
         ).move_to(axes.c2p(15, L))
@@ -585,7 +601,9 @@ class SequenceLimitWithZoom(ZoomedScene,MovingCameraScene):
         self.zoomed_camera.frame.match_height(zoom_area_1)
         self.zoomed_camera.frame.move_to(zoom_area_1.get_center())
         self.zoomed_display.to_corner(UR)
+        self.zoomed_display.display_frame.stroke_width = 0
         
+        # self.zoomed_display.display_frame.set_stroke(width=0)
        
         
         self.play(self.get_zoomed_display_pop_out_animation())
@@ -604,16 +622,47 @@ class SequenceLimitWithZoom(ZoomedScene,MovingCameraScene):
         
         # 清理缩放
         self.play(self.get_zoomed_display_pop_out_animation(), reverse_rate_function=True)
-
-        self.play(Uncreate(surrendRect), Uncreate(discreption), Uncreate(zoom_area_1))
+        self.play(
+            Uncreate(surrendRect), 
+            Uncreate(discreption), 
+            Uncreate(zoom_area_1),
+            # zoom_area_2.animate.set_width(0)
+            # self.zoomed_display.display_frame.animate.set_stroke(width=0)
+            )
+        # 然后完全移除缩放显示
+        self.remove(self.zoomed_display)
+        self.zoomed_display = None
         self.wait(1)
       
         
-        confirm_N_value_1=MathTex(
-            r"\text{由数列极限定义，}\text{对于}\forall \varepsilon > 0 ,\
-            \exists N \in \mathbb{N},\
-            \text{当}n>N\text{时，有}\left | x_n-L \right|<\varepsilon"
-        ).scale(0.7)
+        proof_1= MathTex(
+            r"\text{由定义证明极限：}",
+            r"\left| \frac{\sin(n)}{n} - 0 \right| = ",
+            r"\left| \frac{\sin(n)}{n} \right| = ",
+            r"\frac{|\sin(n)|}{n}<\varepsilon",
+            r"\text{；由}|\sin(n)| \leq 1 \quad \text{对于所有 } n \in \mathbb{N}}\text{成立，可得}",
+            font_size=25
+        )
+
+        proof_2=MathTex(
+            r"\frac{|\sin(n)|}{n} \leq \frac{1}{n}",
+            r"\Rightarrow",
+            r"\left| \frac{\sin(n)}{n} - 0 \right| \leq \frac{1}{n} < \varepsilon",
+            r"\Rightarrow",
+            r"\frac{1}{n} < \varepsilon \quad",
+            r"\Rightarrow",
+            r"\quad n > \frac{1}{\varepsilon}",
+            r"\Rightarrow",
+            r"n > N = \left\lceil \frac{1}{\varepsilon} \right\rceil",
+            font_size=25
+        )
+        proofSurrend=SurroundingRectangle(proof_2[8],color=RED_A,buff=.1)
+        proof_3=MathTex(
+            r"\text{当 } n > N \text{ 时}, \quad " ,
+            r"\left| \frac{\sin(n)}{n} \right| \leq \frac{1}{n} < ",
+            r"\frac{1}{N} \leq \varepsilon",
+            font_size=25
+        )
         
         confirm_N_value_2=MathTex(
             r"\text{已知极限 L 为 0} ,\varepsilon \text{现在取的是0.1}\
@@ -622,17 +671,35 @@ class SequenceLimitWithZoom(ZoomedScene,MovingCameraScene):
         confirm_N_value_3=MathTex(
             r"\text{则：}\left | n-0 \right|<0.1,").scale(0.7)
 
-        confirm_N_value=VGroup(confirm_N_value_1,
+        confirm_N_value=VGroup(
                                confirm_N_value_2,
                                confirm_N_value_3
                                ).arrange(DOWN,aligned_edge=LEFT).to_edge(
                                    DOWN,buff=.7).shift(LEFT*.5)
         
-        self.play(Write(confirm_N_value))
-
-        self.play(self.camera.frame.animate.move_to(axes.c2p(13,0.1)).set(width=9),
-            run_time=1.5
+        self.play(
+            Write(proof_1),
+            proof_1.animate.next_to(zoom_area_2,DOWN,aligned_edge=LEFT)
         )
+
+        self.play(
+            Create(proof_2),
+            proof_2.animate.next_to(proof_1[1],DOWN,aligned_edge=LEFT)        
+        )
+
+        self.play(
+            Create(proof_3),
+            proof_3.animate.next_to(proof_2,DOWN,aligned_edge=LEFT)        
+        )
+        
+        self.play(Create(proofSurrend),
+                   proofSurrend.animate.move_to((proof_2[8]).get_center()),
+                   Uncreate(zoom_area_2)
+        )
+
+        # self.play(self.camera.frame.animate.move_to(axes.c2p(13,0.1)).set(width=9),
+        #     run_time=1.5
+        # )
 
         self.wait(1)
         
@@ -640,36 +707,74 @@ class SequenceLimitWithZoom(ZoomedScene,MovingCameraScene):
         # 计算并标记 N 值
         N_value = math.ceil(1 / epsilon.get_value())
         N_indicator =DashedLine(
-            start=axes.c2p(N_value, 0), 
+            start=axes.c2p(N_value, - 0.1), 
             end=axes.c2p(N_value, 0.5), 
             color=WHITE,
-            stroke_width=3
+            stroke_width=4
         )
+
         
-        self.play(Create(N_indicator))
+        epsilon_label.clear_updaters()
+        self.play(
+            epsilon_label.animate.shift(LEFT*2.5)
+        )
+        epsilon_label_temp_pos=epsilon_label.get_center()
+        self.remove(epsilon_label)
         
-        N_label = MathTex(r"N = \lceil \frac{1}{\varepsilon} \rceil").scale(0.7).next_to(N_indicator, RIGHT, buff=0.2)
+        epsilon_label = always_redraw(
+            lambda:get_epsilon_label().move_to(epsilon_label_temp_pos)
+            )
+        # epsilon_label.move_to(epsilon_label_temp_pos)
+        self.add(epsilon_label) 
+        
+        self.play(Create(N_indicator),run_time=.5)
+        
+        N_label = MathTex(
+            r"N = \lceil \frac{1}{\varepsilon} \rceil = ",
+            f"{math.ceil(1 / epsilon.get_value())}"
+            ).scale(0.5).next_to(N_indicator, UP, buff=0.2)
+        
         self.play(Write(N_label))
-        # self.wait(2)
+        
+        
+        self.wait(.5)
         
         
         
-        self.play(epsilon.animate.set_value(0.05), run_time=.8)
+        self.play(
+            epsilon.animate.set_value(0.023),
+            epsilon_band_width.animate.set_value(1),
+            limit_line_width.animate.set_value(.9),             
+            run_time=1            
+        )
         # self.play(self.camera.frame.animate.set(width=9))
         
+
+
         N_value = math.ceil(1 / epsilon.get_value())
         N_indicator_2 =DashedLine(
-            start=axes.c2p(N_value, 0), 
-            end=axes.c2p(N_value, 1), 
+            start=axes.c2p(N_value, -0.1), 
+            end=axes.c2p(N_value, .4), 
             color=WHITE,
             stroke_width=2
         )
-        N_label_2 = MathTex(r"N = \lceil \frac{1}{\varepsilon} \rceil").scale(0.7).next_to(N_indicator, RIGHT, buff=0.2)
+        N_label_2 = MathTex(
+            r"N = \lceil \frac{1}{\varepsilon} \rceil =",
+            f"{math.ceil(1 / epsilon.get_value())}",
+            ).scale(0.5).next_to(N_indicator_2, UP, buff=0.2)
 
         self.play(Transform(N_indicator, N_indicator_2),
                   Transform(N_label, N_label_2),run_time=1)
 
         self.wait(1)
+        epsilon_label.clear_updaters()
+        self.play(
+            self.camera.frame.animate.move_to(
+                axes.c2p(44,0)).set(width=7),
+                epsilon_label.animate.shift(RIGHT*2.1),
+                run_time=1.5
+        )
+        # self.wait(1)
         # 最终动画：移除邻域，保留极限线
         # self.play(
         #     Uncreate(epsilon_band_upper),
@@ -680,20 +785,35 @@ class SequenceLimitWithZoom(ZoomedScene,MovingCameraScene):
         #     Uncreate(zoom_area_1)
         # )
         
-        self.wait(2)
+        # self.wait(2)
         
         # 重新强调极限
-        self.play(limit_line.animate.set_stroke_width(4))
+        self.play(self.camera.frame.animate.set(width=14))
+        self.play(limit_line_width.animate.set_value(3),run_function=there_and_back)
         self.wait(1)
         
         # 清理
-        # self.play(
-        #     *[Uncreate(dot) for dot in dots],
-        #     Uncreate(limit_line),
-        #     Uncreate(limit_label),
-        #     Uncreate(definition),
-        #     Uncreate(epsilon_label)
-        # )
+        self.play(
+            *[Uncreate(dot) for dot in dots],
+            Uncreate(limit_line),
+            Uncreate(limit_label),
+            Uncreate(definition),
+            Uncreate(epsilon_label),
+            Uncreate(epsilon_band_upper),
+            Uncreate(epsilon_band_lower),
+            FadeOut(epsilon_region),
+            Uncreate(N_indicator),
+            Uncreate(N_label),
+            Uncreate(zoom_area_1)
+        )
+        self.play(
+            Uncreate(proof_1),
+            Uncreate(proof_2),
+            Uncreate(proof_3),
+            Uncreate(proofSurrend)
+        )
+
+        
         
         
 
@@ -993,7 +1113,7 @@ class specificExampleGraph_1(Scene):
 
         assumingTex_2=always_redraw(lambda: MathTex(
                     r"\text{{意味着从 }",
-                    rf"\text{{第}}{int(np.ceil(1/epsilon.get_value()))}\text{{项}}",
+                    rf"\text{{第}}{int(np.ceil(1/epsilon.get_value()))}\text{{项 }}",
                     r"\text{开始数列的取值进入邻域，即}",
                     # r"\lvert x_n - 0 \rvert < \varepsilon",
                     font_size=27,
@@ -1029,7 +1149,7 @@ class specificExampleGraph_1(Scene):
                 stroke_width=3,
                 stroke_color=WHITE,
             ).move_to(
-                axes._x2pos(epsilonVlaue)if edge is 1 
+                axes._x2pos(epsilonVlaue)if edge == 1 
                 else axes._x2pos(-epsilonVlaue))
             return nerberHoodline
            
@@ -1125,3 +1245,409 @@ class specificExampleGraph_1(Scene):
             isPlayPoint=False,       
             run_time=2            
         )            
+
+
+class SpecificExample_2(MovingCameraScene):
+    def construct(self):
+        # -------------- 0. 基本配色 --------------
+        BLUE_D  = "#59A3FD"
+        GREEN_B = "#8CFF98"
+        YELLOW  = "#F7D06D"
+        RED     = "#FF5F5F"
+
+        # -------------- 1. 数列表达式 --------------
+        title = Tex(r"\text{证明：} $\displaystyle\lim_{n\to\infty}\frac{(-1)^n}{(n+1)^2}=0$",font_size=28)
+        title.to_edge(UL)
+        self.play(Write(title))
+        self.wait()
+
+        # -------------- 2. 极限定义回顾 --------------
+        defn = MathTex(
+            r"\forall\varepsilon>0,\;\exists N\in\mathbb{N},\;n>N\Rightarrow|x_n-L|<\varepsilon"
+        ).scale(0.5).next_to(title, RIGHT, buff=0.4)
+
+        surrendDefn=SurroundingRectangle(
+            defn,
+            color=BLUE_D,)
+
+        self.play(Write(defn),Create(surrendDefn))
+        self.wait()
+
+        # -------------- 3. 建坐标系 --------------
+        axes = Axes(
+            x_range=[0, 40, 1],
+            y_range=[-0.2, 0.2, 0.05],
+            x_length=10,
+            y_length=4,
+            tips=False,
+            x_axis_config={"include_numbers": True,"font_size": 15,"tick_size": 0.02}, 
+            y_axis_config={"include_numbers": True,"font_size": 15,"tick_size": 0.04}
+        ).next_to(defn, DOWN, buff=2.9)
+    
+
+        # 极限 L = 0
+        limit_line = DashedLine(
+            axes.c2p(0, 0), axes.c2p(40, 0),
+            color=YELLOW, stroke_width=3
+        )      
+        
+
+        # -------------- 4. ε 带 --------------
+        epsilon = ValueTracker(0.1)
+
+        def eps_band():
+            upper = DashedLine(
+                axes.c2p(0,  epsilon.get_value()),
+                axes.c2p(40, epsilon.get_value()),
+                color=GREEN_B, stroke_width=3
+            )
+            lower = DashedLine(
+                axes.c2p(0, -epsilon.get_value()),
+                axes.c2p(40,-epsilon.get_value()),
+                color=GREEN_B, stroke_width=3
+            )
+            return VGroup(upper, lower)
+
+        band = always_redraw(eps_band)
+        
+
+        # -------------- 5. 逐点描迹 --------------
+        dots = VGroup()
+        for n in range(1, 41):
+            y = (-1)**n / (n+1)**2
+            dot = Dot(axes.c2p(n, y), radius=0.04, color=BLUE_D)
+            dots.add(dot)
+
+        
+        # -------------- 6. 计算 |x_n - 0| < ε --------------
+        calc = MathTex(
+            r"\because \left|\frac{(-1)^n}{(n+1)^2}-0\right|=",
+            r"\frac{1}{(n+1)^2}<\varepsilon",
+            font_size=27,stroke_width=1
+        ).next_to(surrendDefn, DOWN, buff=0.3,aligned_edge=LEFT)
+        self.play(Write(calc))
+        self.wait()
+
+        # -------------- 7. 解出 N --------------
+        sol = MathTex(
+            r"\therefore (n+1)^2>\frac{1}{\varepsilon}",
+            r"\Rightarrow n>\sqrt{\frac{1}{\varepsilon}}-1",
+            font_size=27,stroke_width=1
+        ).next_to(calc, DOWN, buff=0.2).align_to(calc, LEFT)
+        
+        self.play(Write(sol))
+        self.wait()
+        
+        
+        # -------------- 8. 取整并显示 N 竖线 --------------
+        
+        # 8. 取整并显示 N 竖线
+        n_int = MathTex(
+            r"\therefore\text{取 }N=\left\lceil\sqrt{\frac{1}{\varepsilon}}\,\right\rceil",
+            font_size=27,stroke_width=1
+        ).next_to(sol, DOWN, buff=0.2,aligned_edge=LEFT)
+        
+        self.play(Write(n_int))
+        self.wait()
+
+
+        solExplain=MathTex(
+            r"\sqrt{\frac{1}{\varepsilon}}>\sqrt{\frac{1}{\varepsilon}}-1",
+            r"\text{ 若}N=\left \lceil \sqrt{\frac{1}{\varepsilon}} \,\right\rceil",
+            r"\text{,则} n>N\text{时，一定可以满足} n>\sqrt{\frac{1}{\varepsilon}}-1",
+            font_size=25,color=RED
+        ).next_to(n_int, DOWN, buff=0.1,aligned_edge=LEFT)
+
+        surrendSolExp=SurroundingRectangle(
+            solExplain,
+            stroke_width=3,  
+            color=BLUE           
+        )
+        dashSurrebdsolExp=DashedVMobject(
+            surrendSolExp,
+            num_dashes=100,   # 单段虚线长度
+            dashed_ratio=0.5,    # 实部占 50 %            
+        )
+
+        self.play(Write(solExplain),Create(dashSurrebdsolExp))
+        
+        
+        self.wait()
+
+
+        #============= 坐标系 极限线    
+        self.play(Create(axes), Create(limit_line))
+        self.wait(.5)
+        #==========
+        
+
+        self.play(Uncreate(dashSurrebdsolExp),Uncreate(solExplain))
+
+
+               # -------------- 10. 缩小 ε 验证 --------------
+        eps_text = always_redraw(
+            lambda: MathTex(f"\\varepsilon={epsilon.get_value():.3f}",
+                            font_size=30,stroke_width=1)
+                     .next_to(limit_line,UP,buff=0.2)
+        )
+        
+        #============领域===========
+        self.play(FadeIn(eps_text))
+        self.play(Create(band))
+        self.wait()
+        #============
+
+
+
+        self.play(LaggedStartMap(Create, dots, lag_ratio=0.05), run_time=2)
+        self.wait()
+
+
+        # -------------- 9. 动态 N 线 --------------
+        def n_line():
+            eps = epsilon.get_value()
+            N = max(1, int(np.ceil(1/np.sqrt(eps))) - 1)
+            x_pos = axes.c2p(N, 0)[0]
+            return DashedLine(
+                [x_pos, axes.c2p(0, -0.15)[1], 0],
+                [x_pos, axes.c2p(0,  0.07)[1], 0],
+                color=RED, stroke_width=3
+            )
+        
+        
+        nl = always_redraw(n_line)
+        n_line_lable = always_redraw(lambda:
+            MathTex(
+                rf"N = {max(1, int(np.ceil(1/np.sqrt(epsilon.get_value()))) + 1)}",
+                font_size=25,
+                color=RED
+                ).next_to(nl, UP, buff=0.2)
+        )
+
+        
+        self.play(Create(nl),Create(n_line_lable))
+        self.wait()     
+       
+
+        self.play(epsilon.animate.set_value(0.01), run_time=3)       
+        self.play(epsilon.animate.set_value(0.005), 
+                  self.camera.frame.animate.set_width(10),run_time=3)
+        self.play(epsilon.animate.set_value(0.0018), run_time=3)
+        self.wait()
+
+        # -------------- 11. 结束语 --------------
+
+
+
+
+class SpecificExample_3(MovingCameraScene):
+    def construct(self): 
+
+        _color_1="#39c5bb"  
+        _color_2="#C1003C"  
+        _color_3="#07A1B1"  
+        # 显示要求解的极限        
+        limit_problem = MathTex(
+            r"\text{用定义求数列极限: } \lim_{n \to \infty} \frac{3n+1}{2n+1}",
+            font_size=27
+        )
+        limit_problem.to_edge(UL)
+        self.play(Write(limit_problem))
+        self.wait(1)
+
+        # 第一步：化简表达式
+        step1_title = Text("第一步：化简表达式", font_size=28, color=_color_1)
+        step1_title.next_to(limit_problem, DOWN, aligned_edge=LEFT,buff=.5)        
+        self.play(Write(step1_title))
+        self.wait(.8)
+
+        simplification = MathTex(
+            r"\frac{3n+1}{2n+1} = \frac{3 + \frac{1}{n}}{2 + \frac{1}{n}}",
+            font_size=28
+        )
+        simplification.next_to(step1_title, RIGHT, buff=0.3)       
+        self.play(Write(simplification))
+        self.wait(2)
+
+        # 第二步：观察极限
+        step2_title = Text("第二步：分析极限", font_size=28, color=_color_1)
+        step2_title.next_to(step1_title, DOWN,aligned_edge=LEFT, buff=0.8)
+       
+        self.play(Write(step2_title))
+        self.wait(1)
+
+        limit_observation = MathTex(
+            r"\lim_{n \to \infty} \frac{3 + \frac{1}{n}}{2 + \frac{1}{n}} = ",
+            r"\frac{3 + 0}{2 + 0} = \frac{3}{2}",
+            font_size=28
+        )
+        limit_observation.next_to(step2_title, RIGHT, buff=0.3)       
+        self.play(Write(limit_observation))
+        self.wait(1)
+
+        # 第三步：使用ε-N定义严格证明
+        step3_title = Text("第三步：ε-N定义严格证明", font_size=27, color=_color_1)
+        step3_title.next_to(step2_title, DOWN, buff=0.8,aligned_edge=LEFT)       
+        self.play(Write(step3_title))
+        self.wait(1)
+
+        # 目标不等式
+        goal = MathTex(
+            r"\left| \frac{3n+1}{2n+1} - \frac{3}{2} \right| < \varepsilon",
+            font_size=28,
+            color=RED
+        )
+        goal.next_to(step3_title, RIGHT, buff=0.3)       
+        self.play(Write(goal))
+        self.wait(1)
+
+        # 化简差值
+        difference = MathTex(
+            r"\left| \frac{3n+1}{2n+1} - \frac{3}{2} \right| = ",
+            r"\left| \frac{2(3n+1) - 3(2n+1)}{2(2n+1)} \right|",
+            font_size=25
+        )
+        difference.next_to(step3_title, DOWN, buff=0.5)
+        difference.to_edge(LEFT)
+        self.play(Write(difference))
+        self.wait(1.5)
+
+        difference_simplified = MathTex(
+            r"= \left| \frac{6n+2 - 6n - 3}{2(2n+1)} \right| = ",
+            r"\left| \frac{-1}{2(2n+1)} \right| = ",
+            r"\frac{1}{2(2n+1)}",
+            font_size=25
+        )
+        difference_simplified.next_to(difference, RIGHT, buff=0.3)
+        
+        self.play(Write(difference_simplified))
+        self.wait(1.5)
+
+        # 建立不等式
+        inequality = MathTex(
+            r"\frac{1}{2(2n+1)} < \frac{1}{4n} < \varepsilon",
+            font_size=28,stroke_width=1,
+            color=PURPLE
+        )
+        inequality.next_to(difference, DOWN, buff=0.3,aligned_edge=LEFT)        
+        self.play(Write(inequality))
+        self.wait(1.5)
+
+        # 解出N
+        solve_n = MathTex(
+            r"\Rightarrow \quad n > \frac{1}{4\varepsilon}\Rightarrow \quad",
+            font_size=28,color=_color_2,stroke_width=1,
+        )
+        solve_n.next_to(inequality, DOWN, buff=0.4,aligned_edge=LEFT)       
+        self.play(Write(solve_n))
+        self.wait(2)
+
+        n_definition = MathTex(
+            r"N = \left\lceil \frac{1}{4\varepsilon} \right\rceil",
+            font_size=29,
+            color=_color_3
+        )
+        n_definition.next_to(solve_n, RIGHT, buff=0.3)
+       
+        self.play(Write(n_definition))
+        self.wait(2)
+
+        # 可视化数列收敛
+        self.show_sequence_convergence()
+
+        # 结论
+        self.play(self.camera.frame.animate.shift(DOWN*.7+LEFT*1.9))
+        conclusion_box = Rectangle(width=5, height=1, color=_color_2, fill_color=BLACK, fill_opacity=0.8)
+        conclusion_box.next_to(n_definition, RIGHT, buff=0.5)
+        
+        conclusion = MathTex(
+            r"\lim_{n \to \infty} \frac{3n+1}{2n+1} = \frac{3}{2}",
+            font_size=31,
+            color=_color_2
+        )
+        conclusion.move_to(conclusion_box.get_center())
+
+        self.play(Create(conclusion_box), Write(conclusion))
+        self.wait(3)
+
+    def show_sequence_convergence(self):
+        # 创建坐标系
+        axes = Axes(
+            x_range=[0, 20, 1],
+            y_range=[1.2, 1.8, 0.1],
+            x_length=6,
+            y_length=4,
+            axis_config={
+                "include_numbers": True, 
+                "color": BLUE,
+                "font_size": 20,  # 调整坐标轴上数字的字体大小
+                "tip_length": 0.08,  # 缩短箭头长度
+                "tip_shape": StealthTip,  # (可选) 更换箭头样式，需要从 manim 导入
+            }
+        )
+        axes.to_edge(UR).shift(UP*.5+RIGHT*.7)
+
+        # 坐标轴标签
+        x_label = axes.get_x_axis_label(Text("n",font_size=22))
+        y_label = axes.get_y_axis_label(MathTex("a_n",font_size=25))
+        
+        self.play(self.camera.frame.animate.shift(UP*.7+RIGHT*1.9))
+        self.play(Create(axes), Write(x_label), Write(y_label))
+        self.wait(1)
+
+        # 绘制极限线 y = 3/2
+        limit_line = axes.plot(lambda x: 1.5, x_range=[0, 20], color=GREEN, stroke_width=3)
+        limit_label = MathTex(r"L = \frac{3}{2}", font_size=20, color=GREEN)
+        limit_label.next_to(limit_line, UP)
+
+        self.play(Create(limit_line), Write(limit_label)                  
+                  )
+        self.wait(1)
+
+        # 计算并绘制数列点
+        n_values = list(range(1, 21))
+        dots = VGroup()
+        values_text = VGroup()
+
+        for n in n_values:
+            # 计算数列值
+            a_n = (3*n + 1) / (2*n + 1)
+            
+            # 创建点
+            dot = Dot(axes.coords_to_point(n, a_n), color=RED, radius=0.05)
+            dots.add(dot)
+            
+            # 每5个点显示数值
+            if n % 4 == 0:
+                value_text = MathTex(
+                    f"a_{{{n}}} = {a_n:.3f}", 
+                    font_size=17
+                )
+                value_text.next_to(dot, UP * 0.3)
+                values_text.add(value_text)
+
+        # 动画显示点
+        self.play(LaggedStartMap(Create, dots, lag_ratio=0.1))
+        self.play(Write(values_text))
+        self.wait(2)
+
+        # 显示收敛趋势
+        convergence_text = Text(
+            "数列值逐渐趋近于 1.5",
+            font_size=18,
+            color=YELLOW
+        )
+        convergence_text.next_to(limit_line, DOWN, buff=0.3)
+        self.play(Write(convergence_text))
+        self.wait(.5)
+
+        # 高亮显示极限值
+        final_value = MathTex(
+            r"a_{20} = \frac{3\times20+1}{2\times20+1} = \frac{61}{41} \approx 1.488",
+            font_size=17,
+            color=ORANGE
+        )
+        final_value.next_to(convergence_text, DOWN, buff=0.2)
+        self.play(Write(final_value))
+        self.wait(.8)
+
