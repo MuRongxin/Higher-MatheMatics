@@ -233,10 +233,10 @@ class Infinitesimal(ZoomedScene,MovingCameraScene):
 
         self.play(Write(text_2_example))
 
-        def make_axes(x_range,x_length) -> Axes:
+        def make_axes(x_range, y_range=(-0.4,3,1),x_length:float=1) -> Axes:
             return Axes(
                 x_range=x_range,
-                y_range=(-0.4,3,1),
+                y_range=y_range,
                 x_length=x_length,
                 axis_config={
                     "color": WHITE,
@@ -394,8 +394,79 @@ class Infinitesimal(ZoomedScene,MovingCameraScene):
         )
 
         #=========Table============
+        table_datas = [table_data_1, table_data_2, table_data_3, 
+                       table_data_4,table_data_5, table_data_6]
         
+        def get_table(data):
+            table = Table(
+                data, 
+                include_outer_lines=True,
+                line_config={"stroke_width": 1.5},
+                arrange_in_grid_config={"cell_alignment": LEFT},
+                h_buff=.5,               
+            ).scale(.375)            
+          
 
+            return table
+        table_group = VGroup()
+        for td in table_datas:
+            table_group.add(get_table(td))
+
+        # 统一
+        max_height = max(table.height for table in table_group)
+        for table in table_group:
+            # 设置表头行样式（第一行）
+            header_row = table.get_rows()[0]
+            for cell in header_row:
+                cell.set_color(YELLOW).set_font_weight(BOLD)
+            
+            if table.height < max_height:
+                # 计算缩放因子使高度一致
+                scale_factor = max_height / table.height
+                table.scale(scale_factor)
+            
+        table_group.arrange(RIGHT,buff=0).shift(RIGHT*9) 
+        
+        
+        # 设置第一列样式（时间段列）
+        first_column = table_group[0].get_columns()[0]
+        for i, cell in enumerate(first_column):
+            if i > 0:  # 跳过表头
+                cell.set_color(BLUE)
+        
+        table_title=MathTex(
+            r"g(x)=x\text{ 与 }f(x)=x^2\text{ 的对比}",
+            font_size=35,
+            stroke_width=1
+        ).next_to(table_group,UP)
+        
+        x2=ValueTracker(1.5)
+        dotgx=always_redraw(
+            lambda: 
+            Dot(axes_1.c2p(x2.get_value(),g_curve_1.underlying_function(x2.get_value())),
+                color=_color_4,radius=0.1
+            )
+        )
+        dotfx=always_redraw(
+            lambda:
+            Dot(axes_1.c2p(x2.get_value(),f_curve_1.underlying_function(x2.get_value())),
+                color=_color_3,radius=0.1
+            )
+        )
+
+        explain_1=Paragraph (
+            "这是因为混淆了两种完全不同的“速度”",
+            "我们列表计算出的速度",
+            "相当于函数值 y 相对于自变量 x 的变化率 ",
+            " Δy / Δx，近似于“瞬时速度”",            
+            "“瞬时速度”只描述了“那一瞬间”的情况",
+            "而忽略了“当前离 0 还有多远”",
+            font_size=25,
+            font=font_2,
+            line_spacing=1
+        )
+        
+        # 动画序列
 
 
         area_1,line_1,line_2,lab_1=make_area(
@@ -407,12 +478,227 @@ class Infinitesimal(ZoomedScene,MovingCameraScene):
         area_2,line_3,line_4,lab_2=make_area(
             axes_1, g_curve_1,x0=.5,x1=0.1, color=ManimColor(_color_7), opacity=0.3)
         self.play(LaggedStartMap(Create,
-                 VGroup(area_2,line_3,line_4,lab_2)))
+                 VGroup(area_2,line_3,line_4,lab_2,table_group[0])))
         
         area_3,line_5,line_6,lab_3=make_area(
             axes_1, g_curve_1,x0=.1,x1=0.01, color=ManimColor(_color_8), opacity=0.3)
         self.play(LaggedStartMap(Create,
                  VGroup(area_3,line_5,line_6,lab_3)))
+        
+        self.wait()
+        # =========Move Camera============
+        self.play(
+            self.camera.frame.animate.shift(RIGHT*9)
+        )
+
+
+        #=========Table============
+        self.play(LaggedStartMap(Write,table_group[1:],lag_ratio=.5),Write(table_title))
+        self.wait(2)
+        
+        #===========Restore=========
+        tempGroup=VGroup(table_group[0],
+            table_group[4],table_group[5]
+        ).copy().arrange(RIGHT,buff=0).shift(RIGHT*4.1).scale(0.9)
+        
+        self.play(LaggedStart(
+                self.camera.frame.animate.shift(LEFT*9),        
+                FadeOut(table_title),
+                ReplacementTransform(table_group,tempGroup),
+                Create(dotgx),
+                Create(dotfx),
+                LaggedStartMap(Uncreate,[area_1,area_2,area_3]),
+                run_time=4,rate_func=linear
+            )
+        )
+        self.wait()
+
+        # table4_rec=SurroundingRectangle(
+        #         table_group[4],
+        #         buff=0.1,
+        #         stroke_width=3,
+        # )
+        
+        flashs1= [Flash(tempGroup[1].get_cell((i, 1)),color=RED) for i in range(1,7)]
+        flashs2= [Flash(tempGroup[2].get_cell((i, 1)),color=BLUE_D) for i in range(1,7)]
+        self.play(
+            LaggedStart(*flashs1,
+                lag_ratio=0.3
+            ),
+            LaggedStart(*flashs2,
+                lag_ratio=0.3
+            )
+        )
+        
+        self.play(
+            x2.animate.set_value(0.2),
+            run_time=3,rate_func=smooth
+        )
+
+        self.wait()
+        
+        
+
+        self.play(tempGroup.animate.shift(UP*2))
+        self.play(
+            Create(explain_1),
+            explain_1.animate.next_to(tempGroup,DOWN,aligned_edge=LEFT)
+        )
+        self.wait()
+
+        exp_1_rec=SurroundingRectangle(explain_1[5], color=RED, buff=0.1)
+        self.play(Create(exp_1_rec))
+        self.wait(.7)
+        self.play(Uncreate(exp_1_rec))
+
+        to_remove = [m for m in self.mobjects if isinstance(m, VMobject)]
+        self.play(*[FadeOut(objs) for objs in to_remove])
+        
+        #==================Next Page==============================
+        title_p2=Text(
+            "我们在意的不是“谁的函数数值跑得快”，而是 “谁更快地抵达终点 0 ” ",
+            font=font_2,
+            font_size=30,
+            stroke_width=1
+        ).to_edge(UP)
+        title_p2.add_background_rectangle(color=BLUE, opacity=0.8, buff=0.1)
+       
+        
+        axes_2=make_axes((-.5,1,1),(-.3,3,1),2)
+        g_curve_2,f_curve_2,g_lab2,f_lab2=make_graphs(axes_2, 2,1)
+       
+
+
+        graph_group=VGroup(axes_2, g_curve_2,f_curve_2,g_lab2,f_lab2).shift(DOWN*.5)
+        self.play(LaggedStart(
+            Write(title_p2),
+            Create(graph_group.to_edge(LEFT)),
+           rate_func=linear,lag_ratio=0.4
+        ))
+
+        table2=Table(
+            table_data_f,
+            include_outer_lines=True,
+            element_to_mobject_config={"font_size": 30,},                                      
+            line_config={"stroke_width": 2.5},
+            v_buff=.3,
+            h_buff=.5,
+            
+        ).scale(.5).shift(RIGHT*3.2+UP)
+
+        self.wait()
+
+        first_column = table2.get_columns()[0]
+        first_row = table2.get_rows()[0]
+        for cell in first_row:
+            cell.set_color(RED)
+        for i, cell in enumerate(first_column):
+            if i > 0:  # 跳过表头
+                cell.set_color(BLUE)
+        self.play(Write(table2),run_time=3)
+        self.wait()
+
+        empha_table_1=[Indicate(table2.get_cell((i, 1)),color=_color_5) for i in range(2,7)]
+        empha_table_2=[Circumscribe(table2.get_cell((i, 4)),color=_color_7) for i in range(2,7)]
+        
+        self.play(LaggedStart(*empha_table_1,lag_ratio=.3),
+                  LaggedStart(*empha_table_2,lag_ratio=.3))
+        self.wait()
+
+
+        explain_2_1=MathTex(
+            r"\text{当} x \text{趋近于 }0\text{ 时，}\frac{f(x)}{g(x)} \text{的值也趋近于}0",
+            font_size=30,
+            stroke_width=1,
+        )    
+        explain_2_2=Paragraph(    
+            "这意味着，f(x)的位置相对于g(x)的位置",
+            "已经『微不足道了』",
+            "可以说, f(x)已经“到达”了终点，而 g(x) 还在路上",
+            line_spacing=1,   
+            font_size=27,
+            font=font_2
+        )
+
+        explain_2=VGroup(explain_2_1,explain_2_2
+        ).arrange(DOWN,aligned_edge=LEFT).next_to(table2,DOWN,aligned_edge=LEFT)
+
+        self.play(Write(explain_2))
+
+        self.wait()
+        self.play(Uncreate(graph_group))
+
+        descrip_1=Paragraph(
+            "举个生活中的例子----",
+            "一辆法拉利（g(x)）:",
+            "在距离终点1公里的地方，以100km/h的速度飞驰",
+            "一只蜗牛（f(x)）:",
+            "已经到距离终点线1毫米的地方，速度是0.001km/h", 
+            line_spacing=1,
+            font=font_2,
+            font_size=25,
+        ).next_to(title_p2,DOWN).to_edge(LEFT,buff=0.1)
+
+        descrip_1[1].add_background_rectangle(color=_color_2, opacity=0.8, buff=0.1)
+        descrip_1[3].add_background_rectangle(color=_color_7, opacity=0.8, buff=0.1)
+        self.play(Write(descrip_1))
+        self.wait()
+
+        ques_1=Text(
+            "请问：谁会更快地抵达终点？",
+            font_size=30,
+            font=font_2,           
+        ).next_to(descrip_1,DOWN,buff=.3)
+
+        surr_ques=SurroundingRectangle(
+            ques_1,
+            color=_color_1,
+            stroke_width=4,
+            fill_opacity=0
+        )
+
+        answer_1=Paragraph(
+            "显然是蜗牛！",
+            "虽然它的瞬时速度极慢，但它离终点已经近到可以忽略不计了!",
+            line_spacing=1,
+            font_size=25,
+            font=font_2,  
+        ).next_to(
+            ques_1,DOWN,buff=.3,
+         ).align_to(descrip_1,LEFT).add_background_rectangle(color=_color_4, opacity=0.8, buff=0.1)
+
+        self.play(Write(ques_1),Create(surr_ques),lag_ratio=0.5,run_time=2)
+        self.wait()
+        self.play(Write(answer_1))
+        
+        self.wait(2)
+        # self.play(
+        #     FadeOut(surr_ques),
+        #     FadeOut(ques_1),
+        #     FadeOut(answer_1),
+        #     FadeOut(descrip_1),
+        #     FadeOut(explain_2),
+        #     FadeOut(table2),
+        #     FadeOut(title_p2),lag_ratio=.5)       
+
+
+        #==================Next Page==============================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     def introduce_concept(self):
         """引入无穷小量的基本概念"""
@@ -599,7 +885,74 @@ class Infinitesimal(ZoomedScene,MovingCameraScene):
         self.play(
             self.camera.frame.animate.move_to(rects[100].get_center()).set_width(0.01),
             run_time=2.5,rate_functions=smooth)
+# 第1列：时间段
+table_data_1 = [
+    ["时间段"],
+    ["1→0.5"],
+    ["0.5→0.1"],
+    ["0.1→0.01"],
+    ["0.01→0.001"],
+    ["0.001→0.000001"]
+]
 
+# 第2列：Δt
+table_data_2 = [
+    ["Δt"],
+    ["0.5"],
+    ["0.4"],
+    ["0.09"],
+    ["0.009"],
+    ["0.000999"]
+]
+
+# 第3列：A (x) Δ位置
+table_data_3 = [
+    [" g(x) Δ位置"],
+    ["1→0.5 = -0.5"],
+    ["0.5→0.1 = -0.4"],
+    ["0.1→0.01 = -0.09"],
+    ["0.01→0.001 = -0.009"],
+    ["0.001→0.000001 =\n -0.000999"]
+]
+
+# 第4列：B (x²) Δ位置
+table_data_4 = [
+    ["f(x) Δ位置"],
+    ["1→0.25 = -0.75"],
+    ["0.25→0.01 = -0.24"],
+    ["0.01→0.0001 = -0.0099"],
+    ["0.0001→0.000001 = -0.000099"],
+    ["0.000001→0.000000001 = \n-0.000000999"]
+]
+
+# 第5列：A 速度
+table_data_5 = [
+    ["g(x) 速度"],
+    ["0.5/0.5 = 1"],
+    ["0.4/0.4 = 1"],
+    ["0.09/0.09 = 1"],
+    ["0.009/0.009 = 1"],
+    ["= 1"]
+]
+
+# 第6列：B 速度
+table_data_6 = [
+    ["f(x) 速度"],
+    ["0.75/0.5 = 1.5"],
+    ["0.24/0.4 = 0.6"],
+    ["0.0099/0.09 ≈ 0.11"],
+    ["0.000099/0.009 ≈\n 0.011"],
+    ["≈ 0.001"]
+]
+
+table_data_f =[
+            ["时间点 (x)", "g(x)的位置 (g(x)=x)", "f(x)的位置 (f(x)=x²)", "位置比 f(x)/g(x)"],
+            ["1", "1", "1", "1"],
+            ["0.5", "0.5", "0.25", "0.5"],
+            ["0.1", "0.1", "0.01", "0.1"],
+            ["0.01", "0.01", "0.0001", "0.01"],
+            ["0.001", "0.001", "0.000001", "0.001"],
+        ]
 
 class TheHigherInfinitesimal(Scene):
     def construct(self):
