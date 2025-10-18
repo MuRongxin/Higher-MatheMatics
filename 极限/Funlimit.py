@@ -97,19 +97,22 @@ class Infinitesimal(ZoomedScene,MovingCameraScene):
             "这个不断分割的过程中产生的每一块“蛋糕” ",          
             font_size=30,
             color=_color_6,
-            font=font_2
+            font=font_8,
+            stroke_width=1
         )
         summary_text_2=Text(
             "  相对于足球场来说都越来越微不足道， ",
              font_size=30,
              color=_color_6,
-             font=font_2
+             font=font_8,
+             stroke_width=1
         )
         summary_text_3=Text(
             "   但它们本身都大于 0 ",
              font_size=30,
              color=_color_6,
-             font=font_2
+             font=font_8,
+             stroke_width=1
              )
         summary_text=VGroup(
             summary_text_1,summary_text_2,summary_text_3
@@ -591,17 +594,19 @@ class Infinitesimal(ZoomedScene,MovingCameraScene):
         first_column = table2.get_columns()[0]
         first_row = table2.get_rows()[0]
         for cell in first_row:
-            cell.set_color(RED)
+            cell.set_color(_color_4)
         for i, cell in enumerate(first_column):
             if i > 0:  # 跳过表头
                 cell.set_color(BLUE)
         self.play(Write(table2),run_time=3)
         self.wait()
 
-        empha_table_1=[Indicate(table2.get_cell((i, 1)),color=_color_5) for i in range(2,7)]
-        empha_table_2=[Circumscribe(table2.get_cell((i, 4)),color=_color_7) for i in range(2,7)]
+        #===========Emphasize Table============
+        empha_table_1=[Indicate(table2.get_cell((i, 1)),color=_color_5,rate_func=there_and_back) for i in range(2,7)]
+        empha_table_2=[Indicate(table2.get_cell((i, 4)),color=_color_7) for i in range(2,7)]
         
-        self.play(LaggedStart(*empha_table_1,lag_ratio=.3),
+        self.play(
+                  LaggedStart(*empha_table_1,lag_ratio=.3),
                   LaggedStart(*empha_table_2,lag_ratio=.3))
         self.wait()
 
@@ -665,35 +670,113 @@ class Infinitesimal(ZoomedScene,MovingCameraScene):
             font=font_2,  
         ).next_to(
             ques_1,DOWN,buff=.3,
-         ).align_to(descrip_1,LEFT).add_background_rectangle(color=_color_4, opacity=0.8, buff=0.1)
+         ).align_to(descrip_1,LEFT).add_background_rectangle(color=_color_4, opacity=1, buff=0.15)
 
         self.play(Write(ques_1),Create(surr_ques),lag_ratio=0.5,run_time=2)
         self.wait()
         self.play(Write(answer_1))
         
         self.wait(2)
-        # self.play(
-        #     FadeOut(surr_ques),
-        #     FadeOut(ques_1),
-        #     FadeOut(answer_1),
-        #     FadeOut(descrip_1),
-        #     FadeOut(explain_2),
-        #     FadeOut(table2),
-        #     FadeOut(title_p2),lag_ratio=.5)       
+        
+        to_remove = [m for m in self.mobjects ]
+        self.play(*[FadeOut(objs) for objs in to_remove])
 
 
         #==================Next Page==============================
 
+        descrip_2=Paragraph(
+            "无穷小的阶数关注的是函数值本身趋近 0 的速度，而不是变化率",
+            "直接比较 f(x) 和 g(x)数值的变化速度",
+            "就像只看法拉利和蜗牛的仪表盘，却不看它们各自的位置，这显然是片面的",
+            line_spacing=1,
+            font_size=25,
+            font=font_2,  
+        ).to_corner(UL)
+
+        self.play(Write(descrip_2))
+        self.wait(1)
+
+        descrip_3=Paragraph(
+            "f(x) 和 g(x) 都在向0移动。我们想知道，在移动的过程中，f(x) 相对于 g(x) 来说，是不是",
+            "更快地完成了它的旅程”",
+            line_spacing=1.3,
+            font_size=27,
+            font=font_2, 
+        )
+        descrip_3[1].add_background_rectangle(
+            color=_color_4, opacity=0.8, buff=0.1)
+        descrip_3.next_to(descrip_2,DOWN,buff=.5,aligned_edge=LEFT)
+
+        self.play(Succession(Write(descrip_3)))
+        self.play(Indicate(descrip_3[1],color=BLUE,rate_func=there_and_back))
+        self.wait(1)
+
+        descrip_4=MathTex(
+            r"R(x) = \frac{f(x)}{g(x)} = \frac{x^2}{x} = x",
+            color=_color_4,
+            font_size=30,
+            stroke_width=1.3,
+        )
+
+        surr_des_4=SurroundingRectangle(
+            descrip_4,
+            color=_color_1,
+            stroke_width=4, 
+                 
+        )
+
+        self.play(Write(descrip_4),descrip_4.animate.next_to(
+            descrip_3[1],RIGHT,buff=.5).shift(DOWN*.2),Create(surr_des_4),
+            surr_des_4.animate.next_to( descrip_3[1],RIGHT,buff=.5).shift(DOWN*.2+LEFT*.1))
+        self.wait(.7)
+
+        descrip_5 = Paragraph(
+            "这个 R(x) 就是“相对位置”。它回答了这样一个问题：",
+            "“在 x 这个时刻，$f(x)$ 离终点的距离，是 g(x) 离终点距离的几分之几？”",           
+            "当 x=0.1 时，R(0.1)=0.1。这意味着 f(x) 的路程只剩下 g(x) 的 10% 了。",
+            "当 x=0.01 时，R(0.01)=0.01。这意味着 f(x) 的路程只剩下 g(x) 的 1% 了。",
+            "当 x=0.001 时，R(0.001)=0.001。这意味着 f(x) 的路程只剩下 g(x) 的 0.1% 了。",
+            alignment="left",       # 左对齐
+            line_spacing=1,       # 行距
+            font_size=25,           # 整体字号
+            color=WHITE,            # 默认颜色
+            font=font_2,
+        ).to_edge(DOWN).shift(LEFT*1.5)
+
+        # 高亮三个关键数字
+        descrip_5.chars[2][-5:-2].set_color(YELLOW)   # 0.1
+        descrip_5.chars[3][-4:-2].set_color(YELLOW)   # 0.01
+        descrip_5.chars[4][-6:-2].set_color(YELLOW)   # 0.001
+
+        self.play(Write(descrip_5))
+
+        self.wait()
+
+        descrip_6=Paragraph(
+            "“趋近于0的相对速度”",
+            "它描述的是一种“相对位置”的坍缩速度",
+            "而不是“瞬时速度”的快慢",
+            font=font_2,
+            font_size=27,
+            line_spacing=.8,
+        ).next_to(surr_des_4,RIGHT).shift(DOWN*.3)
+        descrip_6.add_background_rectangle(color=_color_1, opacity=0.8, buff=0.2)
+
+        self.play(Write(descrip_6))
+
+        self.wait()
 
 
+        descrip_7=MathTex(
+            r"\text{So 我们通过计算极限 }",
+            r"\lim_{x \to a} \frac{\alpha(x)}{\beta(x)}",
+            r"\text{ 来比较它们的趋近速度，并据此分类无穷小量}",
+            font_size=33,
+            stroke_width=2,
+        ).to_edge(DOWN,buff=1.7)
 
-
-
-
-
-
-
-
+        self.play(ReplacementTransform(descrip_5,descrip_7))
+        self.wait(2)
 
 
 
