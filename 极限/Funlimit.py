@@ -20,7 +20,7 @@ _color_4=ManimColor("#ff2e63")
 _color_5="#79D87E"
 _color_6="#0B3B6A"
 _color_7="#ffaaa5"
-_color_8="#FFFFFF"
+_color_8="#b9d7ea"
 
 deyi_hei_path = r"./font/SmileySans-Oblique-2.ttf"
 font_path=r".\font\SmileySans-Oblique-2.ttf"
@@ -1037,17 +1037,1172 @@ table_data_f =[
             ["0.001", "0.001", "0.000001", "0.001"],
         ]
 
-class TheHigherInfinitesimal(Scene):
-    def construct(self):
-        def_card = MathTex(
-            r"\lim_{x\to a}{\alpha(x)\over\beta(x)}=0\;\Rightarrow\;\alpha(x)=o(\beta(x))",
-            font_size=36
+class EquivalentInfinitesimal(Scene):  # 定义一个名为EquivalentInfinitesimal的类，继承自Scene类
+    def construct(self):  # 定义construct方法，这是Scene类的主要方法，用于构建场景
+        title=Text(
+            "等价无穷小",  # 标题文本内容    
+            font=font_2,  
+            font_size=35, 
+            stroke_width=1.8     
+            
+        ).to_corner(UL)
+        
+        title_back=Rectangle(
+            width=title.width,
+            height=title.height,
+            fill_opacity=1,
+            color=_color_1
+        ).move_to(title.get_center()+LEFT*3+DOWN*.2)
+
+
+        title_back_pos=title_back.animate.move_to(title.get_center()+DOWN*.2+RIGHT*.2)
+        
+        
+        self.add(title_back)  
+
+        self.play(LaggedStart(
+            Write(title),
+            title_back_pos,
+            lag_ratio=0.3,
+        ),rate_func=smooth)
+
+        self.wait(.7)
+
+        defint=MathTex(r"""
+            \begin{aligned}
+                &\text{定义：若 }\lim_{x \to a} \frac{\alpha(x)}{\beta(x)} = 1
+                      \text{，则称} \alpha(x)\text{ 与 }\beta(x)\text{ 是等价无穷小。} \\
+                &\text{ 含义: }\alpha(x) \text{ 和 } \beta(x) \text{ 趋近于 0 的速度相同}\\
+                &\text{ 记号: }\alpha(x) \sim \beta(x)\text{ (当 } x \to a)                      
+            \end{aligned}
+            """,
+            font_size=30,
+            stroke_width=1
+        ).next_to(title_back,DOWN,buff=.7,aligned_edge=LEFT)
+
+        self.play(Write(defint),rate_func=smooth)
+        self.wait(1)
+
+        example_title=Text(
+            "例如：",
+            font=font_2,  
+            font_size=30, 
+            stroke_width=1     
+        ).next_to(defint,DOWN,buff=.7,aligned_edge=LEFT)
+        example_title.add_background_rectangle(color=_color_3,buff=.08)
+
+        self.play(Write(example_title),rate_func=smooth)
+        
+
+        exampl_1=MathTex(
+            r"\text{当 } x \to 0 \text{时，} \sin(x) \text{ 和 }x\text{是等价无穷小量，}", 
+            r"\text{因为：}\lim_{x\to 0}\frac{\sin(x)}{x} =1",
+            font_size=33,
+            stroke_width=1,
+        ).next_to(example_title,RIGHT,buff=.4)
+
+        self.play(Write(exampl_1))
+        self.wait(1)
+
+        rec_define=SurroundingRectangle(defint)
+        example_1_copy=exampl_1.copy().next_to(title_back,DOWN+RIGHT*.1,buff=1.3)
+        example_1_copy.add_background_rectangle(
+            color=_color_3,buff=.08)
+        self.play(
+            defint.animate.next_to(
+                title_back,RIGHT,buff=.3).shift(DOWN*.2).scale(.9),
+                Create(rec_define),rec_define.animate.next_to(
+                title_back,RIGHT,buff=.3).shift(DOWN*.3),
+                ReplacementTransform(exampl_1,example_1_copy),
+                FadeOut(example_title))
+        
+        
+        axes_1=self.make_axes((-10,10,3),(-5,5,2),7,4).to_edge(DOWN,buff=0)
+        graphs=self.make_graphs(
+            axes_1,"g(x)=x","f(x)=sin(x)",
+            [-10,10],[-4,4],RIGHT*1.8+UP,LEFT*1.2+UP*.7)
+
+        self.play(Succession(Create(axes_1),Create(graphs)))
+        self.wait(.8)
+
+        axes_2=self.make_axes((-1,1,.2),(-.8,.8,0.4),7,4).to_edge(DOWN,buff=0)
+        graphs_2=self.make_graphs(
+            axes_2,"g(x)=x","f(x)=sin(x)",
+            [-10,10],[-1,1],RIGHT*1.8+UP,LEFT*1.2+UP*.7)
+        
+        self.play(ReplacementTransform(axes_1,axes_2),
+                  ReplacementTransform(graphs,graphs_2),
+                  run_time=3)
+        self.wait(1)
+
+        axes_3=self.make_axes((-.4,.4,.2),(-.5,.5,.2),4,4).to_edge(DOWN,buff=0).shift(LEFT*4)
+        graphs_3=self.make_graphs(
+            axes_3,"g(x)=x","f(x)=sin(x)",
+            [-.4,.4],[-.4,.4],RIGHT*1.8+UP,LEFT*1.2+UP*.7)
+
+        self.play(ReplacementTransform(axes_2,axes_3),
+                  ReplacementTransform(graphs_2,graphs_3))
+        
+        conclusion_1=Text("当 x → 0 时，sin(x) 与 x 无限接近",
+                    font=font_2,font_size=30).next_to(axes_3,RIGHT,buff=.5)
+        conclusion_2=Paragraph("虽然它们奔向 0 的“路径”不同",
+                          "但它们的“速度”和“姿态”在终点附近几乎一模一样",line_spacing=1,
+                    font=font_2,font_size=30).next_to(conclusion_1,DOWN,aligned_edge=LEFT)
+        
+        
+        self.play(Write(conclusion_1))
+        self.play(Write(conclusion_2))
+        self.wait(2)
+
+        self.play(*[FadeOut(mob) for mob in self.mobjects])
+
+        title_2=self.AddTitle("常用等价无穷小",font_size=35,font=font_2)
+        self.play(title_2)
+        self.wait(1)
+
+
+
+        #=========== Function graph -1 ===================
+
+        group_1_tex=MathTex(
+            r"x \sim \sin x \sim \tan x \sim \arcsin x " ,
+            r"\sim \arctan x",
+            font_size=35,
+            stroke_width=1
+        ).to_corner(UL).shift(DOWN)
+
+        self.play(Write(group_1_tex))
+       
+        func_group_1=VGroup()
+        ax = Axes(
+            x_range=[-4, 4, 1], y_range=[-3, 3, 1],
+            x_length=8, y_length=4,
+            axis_config={"include_numbers": True, "font_size": 22,"include_tip":False},
+        )
+        self.play(Create(ax))  # 先放坐标系，不再动画
+        func_group_1.add(ax)
+
+        # 2. 五条函数 + 右侧标签（范围按题目）
+        items = [            
+            (lambda x: x,          [-3, 3],      r"x",           WHITE),
+            (np.arcsin,            [-0.9, 0.9],      r"\arcsin x",   GREEN),
+            (np.sin,               [-4, 4],      r"\sin x",      YELLOW),
+            (np.tan,               [-1.1, 1.1],  r"\tan x",      RED),            
+            (np.arctan,            [-3, 3],      r"\arctan x",   TEAL),
+        ]
+
+        anims = []
+        for f, xr, tex, color in items:
+            g = ax.plot(f, x_range=xr, color=color, stroke_width=2.5)
+            # 标签：取曲线右端点右侧 0.4 单位
+            label = MathTex(tex, color=color, font_size=33).next_to(
+                ax.c2p(xr[1], f(xr[1])), UP, buff=0.3
+            )
+            anims += [Create(g), Write(label)]
+            func_group_1.add(g, label)
+
+        # 3. 依次出现（可改 lag_ratio 调节奏）
+        self.play(Succession(*anims), run_time=5)
+        self.wait()
+
+        self.play(
+            func_group_1.animate.scale(0.5).shift(LEFT*5+UP*1.5),
+            group_1_tex.animate.scale(0.7).shift(DOWN*2+LEFT*1.3)
+        )
+        self.wait()
+
+
+
+        #=========== Function graph -2 ===================
+
+        group_2_tex=MathTex(
+            r"1 - cos(x) \sim \frac{x^2}{2} " ,           
+            font_size=25,
+            stroke_width=1
+        ).to_edge(DOWN,buff=0.9).shift(LEFT*3.5)
+
+        
+       
+        func_group_2=VGroup()
+        ax_2 = Axes(
+            x_range=[-3, 3, 1], y_range=[-3, 3, 1],
+            x_length=8, y_length=4,
+            axis_config={"include_numbers": True, "font_size": 22,"include_tip":False},
+        ).to_edge(DOWN).shift(RIGHT*2.5)
+        self.play(Create(ax_2))  # 先放坐标系，不再动画
+        func_group_2.add(ax_2)
+
+        # 2. 五条函数 + 右侧标签（范围按题目）
+        items = [            
+            (lambda x: 1-np.cos(x),          [-3, 3],      r"1 - cos(x)",   RED),
+            (lambda x: x**2/2,            [-2.5, 2.5],      r"\frac{x^2}{2}",   BLUE),
+
+        ]
+
+        anims = []
+        for f, xr, tex, color in items:
+            g = ax_2.plot(f, x_range=xr, color=color, stroke_width=2.5)
+            # 标签：取曲线右端点右侧 0.4 单位
+            label = MathTex(tex, color=color, font_size=33).next_to(
+                ax_2.c2p(xr[1], f(xr[1])), UP, buff=0
+            ).shift(LEFT*.5)
+            anims += [Create(g), Write(label)]
+            func_group_2.add(g, label)
+
+        # 3. 依次出现（可改 lag_ratio 调节奏）
+        self.play(Succession(*anims), run_time=5)
+        self.wait()
+
+        self.play(
+            func_group_2.animate.scale(0.65).shift(LEFT*7.7+DOWN*.5),
+            Write(group_2_tex)
+        )
+        self.wait()
+
+        #=========== Function graph -3 ===================
+
+        group_3_tex=MathTex(
+            r"e^x - 1 \sim \ln(1 + x) \sim x " ,           
+            font_size=25,
+            stroke_width=1
+        ).to_edge(RIGHT,buff=0).shift(LEFT*2+UP*0.65)
+
+
+
+        func_group_3=VGroup()
+        ax_3 = self.make_axes(
+            x_range=[-3, 3, 1], y_range=[-3, 3, 1],x_length=5, y_length=4
+            ).shift(RIGHT*1.9).scale(1.2)
+        self.play(Create(ax_3))  # 先放坐标系，不再动画
+        func_group_3.add(ax_3)
+
+        items = [            
+            (lambda x: np.exp(x)-1,    [-3.3, 1.5],      r"e^x - 1",   YELLOW_D),
+            (lambda x: np.log(1+x),       [-.9, 3.5],  r"\ln(1 + x)",   BLUE_D),
+            (lambda x: x,                 [-3, 3],      r"x",           RED),
+
+        ]
+
+        anims = []
+        for f, xr, tex, color in items:
+            g = ax_3.plot(f, x_range=xr, color=color, stroke_width=2.5)
+            # 标签：取曲线右端点右侧 0.4 单位
+            label = MathTex(tex, color=color, font_size=30).next_to(
+                ax_3.c2p(xr[1], f(xr[1])), UP, buff=0.2
+            )
+            anims += [Create(g), Write(label)]
+            func_group_3.add(g, label)
+
+
+        self.play(Succession(*anims), run_time=5)
+        self.wait()
+        
+        self.play(
+            func_group_3.animate.scale(0.57).shift(UP*1.7),
+            Write(group_3_tex)
+        )
+        self.wait()
+
+
+
+
+        #=========== Function graph -4 ===================
+
+        group_4_tex=MathTex(
+            r"a^x - 1 \sim x ln(a) " ,           
+            font_size=25,
+            stroke_width=1
+        ).to_edge(DOWN,buff=0.33).shift(RIGHT*4.4)
+
+        func_group_4=VGroup()
+        
+        ax_4 = self.make_axes(
+            x_range=[-3, 3, 1], y_range=[-3, 3, 1],x_length=5.7, y_length=4
+            ).to_edge(DOWN,buff=0).shift(RIGHT*3).scale(0.8)
+        self.play(Create(ax_4))  # 先放坐标系，不再动画
+        a=3
+        items = [
+            (lambda x: a**x-1,       [-3, 1.3],  r"a^x - 1 ",   BLUE_D),
+            (lambda x: x*np.log(a),  [-2, 2.8],      r"x ln(a)",  RED),
+
+        ]
+
+        anims = []
+        for f, xr, tex, color in items:
+            g = ax_4.plot(f, x_range=xr, color=color, stroke_width=2.5)
+            # 标签：取曲线右端点右侧 0.4 单位
+            label = MathTex(tex, color=color, font_size=30).next_to(
+                ax_4.c2p(xr[0], f(xr[0])), LEFT, buff=0.1
+            )
+            anims += [Create(g), Write(label)]
+            
+
+        self.play(Succession(*anims), run_time=5)
+        self.wait()
+
+        self.play(
+            # func_group_4.animate.scale(0.7).shift(UP*1.1),
+            Write(group_4_tex)
+        )
+        self.wait(3)
+
+
+
+      
+
+    def AddTitle(self,title="temp",font="UnVada" ,color:str="#FFFFFF",font_size=35,stroke_width=1.8):
+        title=Text(
+            title,  # 标题文本内容    
+            font=font,  
+            font_size=font_size, 
+            stroke_width=stroke_width     
+            
+        ).to_corner(UL)
+        
+        title_back=Rectangle(
+            width=title.width,
+            height=title.height,
+            fill_opacity=1,
+            color=_color_1
+        ).move_to(title.get_center()+LEFT*3+DOWN*.2)
+
+
+        title_back_pos=title_back.animate.move_to(title.get_center()+DOWN*.2+RIGHT*.2)
+        
+        
+        self.add(title_back)  
+
+        return LaggedStart(
+            Write(title),
+            title_back_pos,
+            lag_ratio=0.3,
         )
 
-        temp=Text("Hello .worlfd，我真的好喜欢你！",font="得意黑")
-        self.add(temp)
-        self.play(Write(def_card))
-        
-        self.wait()        
 
-# 不是在某个时间点离起点有多远，而是在接近终点（0）的过程中，谁“消失”得更快。
+    
+    def make_axes(self,x_range, y_range=(-0.4,3,1),x_length:float=1,y_length=1,include_numbers=True) -> Axes:
+            return Axes(
+                x_range=x_range,
+                y_range=y_range,
+                x_length=x_length,
+                y_length=y_length,
+                axis_config={
+                    "color": WHITE,
+                    "include_numbers": include_numbers,
+                    "font_size": 22,
+                    "tip_length": .1,
+                    "tip_width": .1,
+                },
+                x_axis_config={
+                    "include_ticks": True,
+                    "include_tip": False }
+            )
+   
+
+    def make_graphs(self,ax: Axes,lab_1,lab_2,f_x_range,g_x_range,
+                        g_labOffsetMul,
+                        f_labOffsetMul):
+            """返回 (g_curve, f_curve, g_label, f_label)"""
+            g = ax.plot(lambda x: x, color=_color_3, x_range=g_x_range)
+            f = ax.plot(lambda x: np.sin(x), color=_color_4, x_range=f_x_range)
+
+            g_lab = MathTex(
+                lab_1, color=_color_3, font_size=30,
+                ).move_to(g.get_center()+g_labOffsetMul)
+    
+            f_lab = MathTex(
+                lab_2, color=_color_4, font_size=30,
+                ).move_to(f.get_center()+f_labOffsetMul)  
+
+            return VGroup(g, f, g_lab, f_lab)
+
+
+class  SameorderInfitesimal(Scene):
+    def construct(self):
+        self.play(self.AddTitle("同阶无穷小"),font=font_2)
+        self.wait(.7)
+
+
+        #=========== Page-1=====================
+        defint=MathTex(r"""
+            \begin{aligned}
+                &\text{定义：若 }\lim_{x \to a} \frac{\alpha(x)}{\beta(x)} = c \neq 0
+                      \text{，则称} \alpha(x)\text{ 与 }\beta(x)\text{ 是同阶无穷小。} \\
+                &\text{ 含义: }\alpha(x) \text{ 和 } \beta(x) \text{ 趋近于 0 的速度成比例，同步}\\
+            \end{aligned}
+            """,
+            font_size=30,
+            stroke_width=1
+        ).to_edge(LEFT,buff=.7).shift(UP*1.7)
+
+        self.play(Write(defint),rate_func=smooth)
+        self.wait(1)
+
+        example_title=Text(
+            "例如：",
+            font=font_2,  
+            font_size=30, 
+            stroke_width=1     
+        ).next_to(defint,DOWN,buff=.7,aligned_edge=LEFT)
+        example_title.add_background_rectangle(color=_color_3,buff=.08)
+
+        self.play(Write(example_title),rate_func=smooth)
+        
+
+        exampl_1=MathTex(
+            r"\text{当 } x \to 0 \text{时，} 2x \text{ 和 }x\text{是同阶无穷小量，}", 
+            r"\text{因为：}\lim_{x\to 0}\frac{2x}{x} =2",
+            font_size=33,
+            stroke_width=1,
+        ).next_to(example_title,RIGHT,buff=.4)
+
+        self.play(Write(exampl_1))
+        self.wait(1)
+
+        rec_define=SurroundingRectangle(defint)
+        example_1_copy=exampl_1.copy().to_corner(UL).shift(DOWN*2+RIGHT*.33)
+        example_1_copy.add_background_rectangle(
+            color=_color_3,buff=.08)
+        self.play(
+            defint.animate.next_to(
+                example_1_copy,UP,buff=.4).shift(RIGHT*2).scale(.9),
+                Create(rec_define),rec_define.animate.next_to(
+                example_1_copy,UP,buff=.3).shift(RIGHT*2),
+                ReplacementTransform(exampl_1,example_1_copy),
+                FadeOut(example_title))
+        self.wait(1)
+
+
+        axes_1=Axes(
+            x_range=[-1,5,1],
+            y_range=[-1,4,1],
+            x_length=5,
+            y_length=4,
+            axis_config={
+                "color": WHITE,
+                "include_numbers": True,
+                "font_size": 22,
+                "tip_length": .1,
+                "tip_width": .1,
+            },
+            x_axis_config={
+                
+            }
+        ).to_edge(DOWN,buff=.2)
+
+        self.play(Create(axes_1),axes_1.animate.shift(LEFT*3))
+
+        graph_1=axes_1.plot(lambda x: 2*x,color=_color_1,x_range=[-0.5,2])
+        graph_2=axes_1.plot(lambda x: x,color=_color_4,x_range=[-0.8,3.5])
+
+        self.play(Create(graph_1),Create(graph_2))
+
+        # 3. 在 x=1 处画竖线
+        x_val =ValueTracker(2)
+        x0=x_val.get_value()
+        
+        vline_g =always_redraw(
+            lambda: axes_1.get_vertical_line(
+            axes_1.c2p(x_val.get_value(), x_val.get_value()), stroke_width=4, color=_color_4)
+        )
+        vline_f =always_redraw(
+            lambda: DashedLine(
+            axes_1.c2p(x_val.get_value(), x_val.get_value()), 
+            axes_1.c2p(x_val.get_value(), 2*x_val.get_value()),
+            stroke_width=4, color=_color_1)
+        )
+        vline_f_shadow =always_redraw(
+            lambda: axes_1.get_vertical_line(            
+            axes_1.c2p(x_val.get_value(), 2*x_val.get_value()),
+            stroke_width=4, color=_color_1)
+        )
+
+        
+
+        # 5. 两条大括号：标注 2x 与 x 的「高差」
+        brace_g = Brace(
+            Line(axes_1.c2p(x0, 0), axes_1.c2p(x0, x0)), 
+            direction=RIGHT, color=BLUE)
+        brace_f = Brace(
+            Line(axes_1.c2p(x0, 0), axes_1.c2p(x0, 2*x0)), 
+            direction=RIGHT, color=GREEN)
+        
+        label_g = MathTex("2x", color=BLUE).next_to(brace_g, RIGHT, buff=0.1)
+        label_f = MathTex("x", color=GREEN).next_to(brace_f, RIGHT, buff=0.1)
+
+        dot_x =always_redraw(lambda: Dot(axes_1.c2p(x_val.get_value(), 0), color=WHITE))
+        dot_g =always_redraw(lambda: Dot(axes_1.c2p(x_val.get_value(), x_val.get_value()), color=_color_4))
+        dot_f =always_redraw(lambda:Dot(axes_1.c2p(x_val.get_value(), 2*x_val.get_value()), color=BLUE))
+
+        
+        
+        self.play(
+            Succession(Create(dot_x), Create(vline_g),Create(dot_g)),
+            Succession(Create(dot_f), Create(vline_f)),run_time=.5)
+        
+
+        vline_g_copy=vline_g.copy()
+        vline_f_copy=vline_f_shadow.copy()
+        vlineGrupe_1=VGroup(vline_g_copy,vline_f_copy)
+        self.play(Create(vline_g_copy),vline_g_copy.animate.shift(RIGHT*8.8))
+        self.play(Create(vline_f_copy),vline_f_copy.animate.shift(RIGHT*8))
+
+        
+
+        self.play(x_val.animate.set_value(1),run_time=2)
+
+        vline_g_copy=vline_g.copy()
+        vline_f_copy=vline_f_shadow.copy()
+        vlineGrupe_2=VGroup(vline_g_copy,vline_f_copy)
+        self.play(Create(vline_g_copy),vline_g_copy.animate.shift(RIGHT*7))
+        self.play(Create(vline_f_copy),vline_f_copy.animate.shift(RIGHT*6.5))
+        
+       
+
+        self.play(x_val.animate.set_value(.4),run_time=2)
+
+        vline_g_copy=vline_g.copy()
+        vline_f_copy=vline_f_shadow.copy()
+        vlineGrupe_3=VGroup(vline_g_copy,vline_f_copy)
+        self.play(Create(vline_g_copy),vline_g_copy.animate.shift(RIGHT*5.2))
+        self.play(Create(vline_f_copy),vline_f_copy.animate.shift(RIGHT*4.8))
+
+        for grup in [vlineGrupe_1,vlineGrupe_2,vlineGrupe_3]:
+            self.play(
+                Circumscribe(grup, buff=0.2, color=YELLOW),
+            )
+       
+        
+        
+
+        self.wait() 
+
+
+
+    def AddTitle(self,title="temp",font=font_2 ,color:str="#FFFFFF",font_size=35,stroke_width=1.8):
+        title=Text(
+            title,  # 标题文本内容    
+            font=font,  
+            font_size=font_size, 
+            stroke_width=stroke_width     
+            
+        ).to_corner(UL)
+        
+        title_back=Rectangle(
+            width=title.width,
+            height=title.height,
+            fill_opacity=1,
+            color=_color_1
+        ).move_to(title.get_center()+LEFT*3+DOWN*.2)
+
+
+        title_back_pos=title_back.animate.move_to(title.get_center()+DOWN*.2+RIGHT*.2)
+        
+        
+        self.add(title_back)  
+
+        return LaggedStart(
+            Write(title),
+            title_back_pos,
+            lag_ratio=0.3,
+        )
+
+
+class LoworderInfinitesimal(Scene):
+    def construct(self):
+        self.play(self.AddTitle("低阶无穷小"))
+        self.wait(.7)
+
+        #=========== Page-1=====================
+        defint=MathTex(r"""
+            \begin{aligned}
+                &\text{定义：若 }\lim_{x \to a} \frac{\alpha(x)}{\beta(x)} = \infty
+                      \text{，则称} \alpha(x)\text{ 是比 }\beta(x)\text{ 低阶的无穷小} \\
+                &\text{ 含义: }\alpha(x) \text{ 趋近于 0 的速度比 } \beta(x) \text{ 慢}\\
+                &\text{ 记作：} \alpha(x) = o(\beta(x)) \text{ (当 } x \to a\text{，且}\alpha(x)\neq 0)\\
+            \end{aligned}
+            """,
+            font_size=30,
+            stroke_width=1
+        ).to_edge(LEFT,buff=.7).shift(UP*1.7)
+
+        self.play(Write(defint),rate_func=smooth)
+        self.wait(1)
+
+        example_title=Text(
+            "例如：",
+            font=font_2,  
+            font_size=30, 
+            stroke_width=1     
+        ).next_to(defint,DOWN,buff=.7,aligned_edge=LEFT)
+        example_title.add_background_rectangle(color=_color_3,buff=.08)
+
+        self.play(Write(example_title),rate_func=smooth)
+        
+
+        exampl_1=MathTex(
+            r"\text{当 } x \to 0 \text{时，} x \text{ 是比 }x^2\text{低阶的无穷小}", 
+            r"\text{因为：}\lim_{x\to 0}\frac{x}{x^2}=\lim_{x\to 0}\frac{1}{x} = \infty",
+            font_size=33,
+            stroke_width=1,
+        ).next_to(example_title,RIGHT,buff=.4)
+
+        self.play(Write(exampl_1))
+        self.wait(1.5)
+
+        self.play(*{FadeOut(mob) for mob in self.mobjects})
+        
+        
+    def AddTitle(self,title="temp",font=font_2 ,color:str="#FFFFFF",font_size=35,stroke_width=1.8):
+        title=Text(
+            title,  # 标题文本内容    
+            font=font,  
+            font_size=font_size, 
+            stroke_width=stroke_width     
+            
+        ).to_corner(UL)
+        
+        title_back=Rectangle(
+            width=title.width,
+            height=title.height,
+            fill_opacity=1,
+            color=_color_1
+        ).move_to(title.get_center()+LEFT*3+DOWN*.2)
+
+
+        title_back_pos=title_back.animate.move_to(title.get_center()+DOWN*.2+RIGHT*.2)
+        
+        
+        self.add(title_back)  
+
+        return LaggedStart(
+            Write(title),
+            title_back_pos,
+            lag_ratio=0.3,
+        )
+    
+
+class KorderInfinitesimal(Scene):
+    def construct(self):
+        self.play(self.AddTitle("k 阶无穷小"))
+        self.wait(.7)
+
+        #=========== Page-1=====================
+        defint=MathTex(r"""
+            \begin{aligned}
+                &\text{定义：若存在常数 }k > 0\text{ 使得 }\lim_{x \to a} 
+                       \frac{\alpha(x)}{|\beta(x)|^k} = c \; (c\ne 0)
+                      \text{，那么} \alpha(x)\text{ 是关于 }\beta(x)\text{ 的 k 阶无穷小} \\
+                &\text{ 含义: }\alpha(x) \text{ 趋近于0的速度与 } \beta(x) \text{ 的 k 次方相当}\\
+                &\text{ 记作：} \alpha(x)= o(\beta(x)^k),x\rightarrow a\\
+            \end{aligned}
+            """,
+            font_size=30,
+            stroke_width=1
+        ).to_edge(LEFT,buff=.7).shift(UP*1.7)
+
+        self.play(Write(defint),rate_func=smooth)
+        self.wait(1)
+
+        example_title=Text(
+            "例如：",
+            font=font_2,  
+            font_size=30, 
+            stroke_width=1     
+        ).next_to(defint,DOWN,buff=.7,aligned_edge=LEFT)
+        example_title.add_background_rectangle(color=_color_3,buff=.08)
+
+        self.play(Write(example_title),rate_func=smooth)
+        
+
+        exampl_1=MathTex(
+            r"\text{当 } x \to 0 \text{时，} 1 - cosx \text{ 是关于 }x \text{ 的 2 阶无穷小}", 
+            r"\text{，因为：}\lim_{x\to 0}\frac{1-cosx}{x^2} =\frac{1}{2}",
+            font_size=33,
+            stroke_width=1,
+        ).next_to(example_title,RIGHT,buff=.4)
+
+        self.play(Write(exampl_1))
+        self.wait(1.5)
+        
+
+    def AddTitle(self,title="temp",font=font_2 ,color:str="#FFFFFF",font_size=35,stroke_width=1.8):
+        title=Text(
+            title,  # 标题文本内容    
+            font=font,  
+            font_size=font_size, 
+            stroke_width=stroke_width     
+            
+        ).to_corner(UL)
+        
+        title_back=Rectangle(
+            width=title.width,
+            height=title.height,
+            fill_opacity=1,
+            color=_color_1
+        ).move_to(title.get_center()+LEFT*3+DOWN*.2)
+
+
+        title_back_pos=title_back.animate.move_to(title.get_center()+DOWN*.2+RIGHT*.2)
+        
+        
+        self.add(title_back)  
+
+        return LaggedStart(
+            Write(title),
+            title_back_pos,
+            lag_ratio=0.3,
+        )
+
+
+
+
+
+class Equivalent_infinitesimal_substitution(Scene):
+    def construct(self):
+        self.play(self.AddTitle("等价无穷小替换求极限"))
+        self.wait(.7)
+
+        exa_title = Text("计算示例: ", 
+                     font=font_2,font_size=30, color=WHITE).shift(LEFT*5+UP*1.7)
+        exa_title.add_background_rectangle(color=_color_3,buff=.08)
+        limit_expr = MathTex(r"\lim_{x \to 0}\frac{x\ln(1+x)}{1-\cos{x}}", 
+                             stroke_width=1,font_size=28)
+        limit_expr.next_to(exa_title, RIGHT)
+        title_group = VGroup(exa_title, limit_expr)
+        self.play(Write(title_group))
+        self.wait(1)
+
+        step1 = Text("Step1 判断等价无穷小", font_size=25, color=RED,font=font_2)
+        step1.next_to(exa_title,DOWN,buff=.5,aligned_edge=LEFT)
+        
+        equiv_group = VGroup(
+            MathTex(r"\ln(1+x) \sim x", font_size=22,stroke_width=1),
+            MathTex(r"1-\cos{x} \sim \frac{1}{2}x^2", font_size=22,stroke_width=1)
+        ).arrange(DOWN, aligned_edge=LEFT, buff=0.2)
+        equiv_group.next_to(step1, DOWN, aligned_edge=LEFT, buff=0.3).shift(RIGHT*0.2)
+        
+        self.play(Write(step1))
+        self.play(LaggedStartMap(Write, equiv_group, lag_ratio=0.4))
+        self.wait(1)
+
+        step2 = Text("Step2 代入替换", font_size=25, color=RED,font=font_2)
+        step2.next_to(step1, RIGHT,  buff=1)
+        
+        substitution = MathTex(
+            r"\frac{x\ln(1+x)}{1-\cos{x}} = \frac{x \cdot x}{\frac{1}{2}x^2}",
+            font_size=27, stroke_width=1
+        )
+        substitution.next_to(step2, DOWN, aligned_edge=LEFT, buff=0.4).shift(RIGHT*.2)
+        
+        self.play(Write(step2))
+        self.play(Write(substitution))
+        self.wait(1)
+
+        step3 = Text("Step3 简化计算", font_size=25, color=RED,font=font_2)
+        step3.next_to(step2, RIGHT, buff=1.5)
+        
+        simplifications = VGroup(
+            MathTex(r"\lim_{x \to 0} \frac{x\ln(1+x)}{1-\cos{x}} = \
+                    \lim_{x \to 0}\frac{x ^2}{\frac{1}{2}x^2}", font_size=26,stroke_width=1),
+            MathTex(r"= \frac{1}{\frac{1}{2}}=2", font_size=26,stroke_width=1),
+           
+        ).arrange(DOWN, aligned_edge=LEFT, buff=0.2)
+        simplifications.next_to(step3, DOWN, aligned_edge=LEFT, buff=0.3)
+        
+        self.play(Write(step3))
+        for step in simplifications:
+            self.play(Write(step))
+            self.wait(0.5)
+        
+        self.wait(1)
+
+        final_answer = MathTex(
+            r"\lim_{x \to 0}\frac{x\ln(1+x)}{1-\cos{x}} = 2",
+            font_size=32,
+            color=_color_8,
+            stroke_width=1
+        )
+        final_answer.to_edge(DOWN).shift(UP * .8)
+        
+        answer_box = SurroundingRectangle(final_answer, color=ORANGE, buff=0.3, corner_radius=0.1)
+        
+        self.play(Write(final_answer),Create(answer_box))
+        
+        
+        self.wait(1)
+
+        self.play(FadeOut(*self.mobjects))
+        
+        
+
+
+        title_2 = Text("为什么可以替换？", font_size=33,font=font_2
+                       ).to_corner(UL)
+        title_2.add_background_rectangle(color=_color_3,buff=.08)
+        self.play(Write(title_2))
+        self.wait(1)
+
+        p1 = MarkupText("想象一下，当 x→0 时，<b>sin x</b> 和 x 都在奔向 0。", 
+                        font_size=28,font=font_2)
+        p2 = MarkupText("虽然它们奔向 0 的“路径”不同，但它们的“速度”和“姿态”在终点附近几乎一模一样。",
+                        font_size=28,font=font_2)
+        p3 = MarkupText("等价无穷小的本质是：在 <b>x→0</b> 的过程中，两个无穷小量的“差异”是更高阶的，可以忽略不计。", 
+                        font_size=28,font=font_2)
+        
+        lim_formula = VGroup(
+            Text(
+            "等价无穷小必然满足：",font=font_2,font_size=27,color=YELLOW
+        ),        
+            MathTex(
+            r"\text{}\lim_{x\to 0}\frac{f(x)}{g(x)}=1", font_size=32,
+            stroke_width=1).set_color(YELLOW)
+        ).arrange(RIGHT)
+        example = VGroup(
+            Text("举个例子:",font=font_2,font_size=27,color=YELLOW),
+        
+            MathTex(
+            r"\lim_{x\to 0}\frac{\sin x}{x}=1\quad\Rightarrow\quad\sin x\sim x", 
+            font_size=32,stroke_width=1).set_color(YELLOW)
+        ).arrange(RIGHT)
+        p4 = MarkupText(
+            "在求一个复杂的极限时，如果其中某个因子是 <b>sin x</b>，我们就可以大胆地把它换成 <b>x</b>，", 
+            font_size=28,font=font_2)
+        p5 = MarkupText(
+            "因为它们的“比值”在极限状态下是 1，替换后不会改变整个极限的值。", 
+            font_size=28,font=font_2)
+
+
+        expalin_1 = VGroup(
+            p1, p2, p3, lim_formula, example, p4, p5
+            ).arrange(DOWN, aligned_edge=LEFT, buff=0.25)
+        # 4. 逐句出现
+        for line in expalin_1[:4]:
+            self.play(Write(line), run_time=0.5)
+        self.wait(1.5)
+
+        for line in expalin_1[4:]:
+            self.play(Write(line), run_time=0.5)
+
+        self.wait(2.5)
+        self.play(FadeOut(*self.mobjects))
+
+        self.play(self.AddTitle("常用等价无穷小替换",font_size=35,font=font_2))
+
+        condition_1=Text(
+            "当 x → 0 时",font=font_2,font_size=23).to_edge(UP).shift(LEFT*2.2+DOWN*.4)
+        self.play(Write(condition_1))
+        lines = VGroup(
+            MathTex(r"\sin x \sim x", font_size=36,stroke_width=1),
+            MathTex(r"\tan x \sim x", font_size=36,stroke_width=1),
+            MathTex(r"\arcsin x \sim x", font_size=36,stroke_width=1),
+            MathTex(r"\arctan x \sim x", font_size=36,stroke_width=1),
+            MathTex(r"1-\cos x \sim \dfrac{x^{2}}{2}", font_size=36,stroke_width=1),
+            MathTex(r"\ln(1+x) \sim x", font_size=36,stroke_width=1),
+            MathTex(r"\mathrm{e}^{x}-1 \sim x", font_size=36,stroke_width=1),
+            MathTex(r"a^{x}-1 \sim x\ln a", font_size=36,stroke_width=1),
+            MathTex(r"(1+x)^{\alpha}-1 \sim \alpha x", font_size=36,stroke_width=1),            
+        ).arrange(DOWN, aligned_edge=LEFT, buff=0.35).to_edge(LEFT).shift(DOWN*.5+RIGHT*.2)
+
+        # 逐句淡入
+        self.play(LaggedStartMap(Write, lines, lag_ratio=0.4), run_time=3)
+        self.wait()
+
+        emphasize_1=Paragraph(
+            "需要注意的是，这里面的 x 应该看成一个整体",
+            "该 整体→0 的情况下，都能替换",
+            line_spacing=1,font=font_2,font_size=33,color=_color_3,weight=BOLD
+            ).shift(RIGHT*2.2+DOWN*.4)
+        self.play(Write(emphasize_1))
+        self.wait(2)
+        self.play(Uncreate(emphasize_1))
+
+        example_2=Text(
+            "比如：",font=font_2,font_size=30
+            ).next_to(condition_1,DOWN).add_background_rectangle(color=_color_3,buff=.08)
+        self.play(Write(example_2))
+
+        
+        lim = MathTex(r"\lim_{x\to 0}\frac{\sin 3x}{1-\cos 2x}",
+                       font_size=40).shift(UP*2)
+
+
+        # 2. 高亮「整体」并写出口诀
+        box1 = SurroundingRectangle(lim[0][9:11], color=YELLOW)   # sin(3x)
+        box2 = SurroundingRectangle(lim[0][17:20], color=TEAL)  # 1-cos(2x)
+        tip = Text("整体 → 0", font_size=25,font=font_2).next_to(lim, DOWN, buff=0.3)
+
+        # 3. 替换过程（分步）
+        step1 = MathTex(r"{=}\lim_{x\to 0}\frac{3x}{\frac{1}{2}(2x)^2}", font_size=41)
+        step2 = MathTex(r"=\lim_{x\to 0}\frac{3x}{2x^2}= \infty", font_size=41)
+        step2.next_to(step1,DOWN,aligned_edge=LEFT)
+        # # 4. 竖排
+        box3=SurroundingRectangle(lines[0],color=YELLOW)
+        box4=SurroundingRectangle(lines[4],color=TEAL)
+        # 5. 动画
+        self.play(Write(lim))
+        self.play(Create(box1), Create(box3))
+        self.play(Create(box2), Create(box4))
+        self.play(Write(tip))
+        self.play(Write(step1))
+        self.play(Write(step2))
+        self.wait()
+        so_tex=Text("So",font=font_2,font_size=70,color=_color_4)
+        self.play(Create(so_tex.shift(RIGHT*4)))
+        
+        tempGroup=VGroup(lim,box1,box2,box3,box4,tip,step1,step2,example_2,so_tex)
+        self.play(LaggedStart(tempGroup.animate.scale(0.5),FadeOut(tempGroup),
+                lag_ratio=0.3))
+        
+        lines = VGroup(
+            MathTex(r"\sin \text{( )} \sim \text{( )}", font_size=36),
+            MathTex(r"\tan \text{( )} \sim \text{( )}", font_size=36),
+            MathTex(r"\arcsin \text{( )} \sim \text{( )}", font_size=36),
+            MathTex(r"\arctan \text{( )} \sim \text{( )}", font_size=36),
+            MathTex(r"1-\cos \text{( )} \sim \dfrac{\text{( )}^{2}}{2}", font_size=36),
+            MathTex(r"\ln(1+\text{( )}) \sim \text{( )}", font_size=36),
+            MathTex(r"\mathrm{e}^{\text{( )}}-1 \sim \text{( )}", font_size=36),
+            MathTex(r"a^{\text{( )}}-1 \sim \text{( )}\ln a", font_size=36),
+            MathTex(r"(1+\text{( )})^{\alpha}-1 \sim \alpha \text{( )}", font_size=36),
+        ).arrange(DOWN, aligned_edge=LEFT, buff=0.35
+                  ).shift(DOWN * 0.5 + RIGHT * 0.5).scale(0.84)
+
+        # 逐句淡入
+        self.play(LaggedStartMap(Write, lines, lag_ratio=0.15), run_time=4)
+        self.wait()
+
+        self.play(FadeOut(*self.mobjects))        
+        
+        
+        
+        #=================exampale-1=================
+        
+        self.play(self.AddTitle("例题 1",font_size=35,font=font_2))
+
+        limit_expr = MathTex(
+            r"\lim_{x\to 0}(1+3x)^{\frac{2}{\sin x}}", font_size=36,stroke_width=1.8)
+        limit_expr.to_edge(UP, buff=1.3).shift(LEFT*4.1)
+
+        # 步骤1：识别1^∞型极限
+        step1 = Text("步骤1: 识别极限类型", font_size=30, color=_color_1,font=font_2)
+        step1.next_to(limit_expr, DOWN, buff=0.5, aligned_edge=LEFT)
+        
+        type_text = MathTex(
+            r"1^\infty \text{型极限}",
+            font_size=33,
+            color=YELLOW
+        )
+        type_text.next_to(step1, RIGHT, aligned_edge=DOWN, buff=0.3)
+        
+        step1_rec1=SurroundingRectangle(
+            limit_expr[0][6:12],color=RED_B,buff=.05)
+        step1_rec2=SurroundingRectangle(
+            limit_expr[0][12:18],color=GREEN_D,buff=.05)
+
+
+        self.play(Write(limit_expr))
+        self.wait(1)
+        
+        self.play(Write(step1))
+        self.play(Create(step1_rec1),Create(step1_rec2))
+        self.wait(1)
+        self.play(Write(type_text),Uncreate(step1_rec1),Uncreate(step1_rec2))
+        self.wait(1)
+
+         # 步骤2：使用重要极限公式
+        step2 = Text("步骤2: 使用重要极限公式", font_size=30,font=font_2, color=_color_1)
+        step2.next_to(step1, DOWN, buff=0.5, aligned_edge=LEFT)
+        
+        important_limit = MathTex(
+            r"\lim_{x\to 0}(1+x)^{\frac{1}{x}} = e",
+            font_size=33,
+            color=YELLOW
+        )
+        important_limit.next_to(step2, RIGHT, aligned_edge=DOWN, buff=0.3)
+        
+        self.play(Write(step2))
+        self.play(Write(important_limit))
+        self.wait(1)
+
+         # 步骤3：变形原式
+        step3 = Text("步骤3: 变形原式", font_size=30,font=font_2, color=_color_1)
+        step3.next_to(step2, DOWN, buff=0.5, aligned_edge=LEFT)
+        
+        # 将原式变形为指数形式
+        transformation1 = MathTex(
+            r"(1+3x)^{\frac{2}{\sin x}} = e^{\ln\left[(1+3x)^{\frac{2}{\sin x}}\right]}",
+            font_size=33,
+            color=YELLOW
+        )
+        transformation1.next_to(step3, RIGHT, aligned_edge=DOWN, buff=0.3)
+        
+        transformation2 = MathTex(
+            r"= e^{\frac{2}{\sin x} \cdot \ln(1+3x)}",
+            font_size=33,
+            color=YELLOW        
+        )
+        transformation2.next_to(transformation1, RIGHT, aligned_edge=DOWN, buff=0.2)
+        
+        self.play(Write(step3))
+        self.play(Write(transformation1))
+        self.wait(.5)
+        self.play(Write(transformation2))
+        self.wait(1)
+
+        # 步骤3：变形原式  explain
+        step3_explain = Text(
+            "任何正数都能写成 e 的幂:", font_size=27,font=font_2, color=_color_8
+        )
+        step3_explain.next_to(transformation1, DOWN, buff=0.5, aligned_edge=LEFT)
+        form1  = MathTex(r"A = e^{\ln A}>0", font_size=27,stroke_width=1
+                         ).next_to(step3_explain, RIGHT, aligned_edge=DOWN, buff=0.3)
+        step3_explain_2 = Text(
+            "对数幂规则:", font_size=27,font=font_2, color=_color_8
+        ).next_to(step3_explain,DOWN, buff=0.5, aligned_edge=LEFT)
+        form2  = MathTex(r"\log_AB^c = c\log_A B}", font_size=27,stroke_width=1
+                         ).next_to(step3_explain_2, RIGHT, aligned_edge=DOWN, buff=0.3)
+        
+        self.play(Succession(Write(step3_explain),Write(form1)))
+        self.wait(.5)
+        self.play(Succession(Write(step3_explain_2),Write(form2)))
+        self.wait(1)
+        
+        self.play(FadeOut(step3_explain),FadeOut(form1),FadeOut(step3_explain_2),FadeOut(form2))
+       
+
+       # 步骤4：计算指数部分的极限
+        step4 = Text("步骤4: 计算指数部分的极限", font_size=30, font=font_2,color=_color_1)
+        step4.next_to(step3, DOWN, buff=0.5, aligned_edge=LEFT)
+        
+        exponent_limit = MathTex(
+            r"\lim_{x\to 0} \frac{2}{\sin x} \cdot \ln(1+3x)",
+            font_size=33,
+            color=YELLOW
+        )
+        exponent_limit.next_to(step4, RIGHT, buff=0.3)
+        
+        self.play(Write(step4))
+        self.play(Write(exponent_limit))
+        self.wait(1)
+        
+        # 使用等价无穷小
+        equiv_text = Text("使用等价无穷小:", font_size=27, font=font_2,color=_color_1)
+        equiv_text.next_to(step4, DOWN, buff=0.3, aligned_edge=RIGHT)
+        
+        equiv_group = VGroup(
+            MathTex(r"\ln(1+3x) \sim 3x \quad (x \to 0)",stroke_width=1, font_size=25),
+            MathTex(r"\sin x \sim x \quad (x \to 0)",stroke_width=1, font_size=25)
+        ).arrange(DOWN, aligned_edge=LEFT, buff=0.1)
+        equiv_group.next_to(equiv_text, RIGHT, aligned_edge=UP, buff=0.2)
+        
+        self.play(Write(equiv_text))
+        self.play(LaggedStartMap(Write, equiv_group, lag_ratio=0.3))
+        self.wait(1)
+        self.play(FadeOut(equiv_text), FadeOut(equiv_group))
+        
+         # 代入等价无穷小
+        substitution = MathTex(
+            r"= \lim_{x\to 0} \frac{2}{x} \cdot 3x",
+            font_size=33,
+            color=YELLOW
+        )
+        substitution.next_to(exponent_limit, RIGHT, buff=0.3)
+        
+        simplification = MathTex(
+            r"= \lim_{x\to 0} 6 = 6",
+            font_size=33,
+            color=YELLOW
+        )
+        simplification.next_to(substitution, RIGHT, aligned_edge=DOWN, buff=0.2)
+        
+        self.play(Write(substitution))
+        self.wait(1)
+        self.play(Write(simplification))
+        self.wait(1)
+
+         # 步骤5：得到最终结果
+        step5 = Text("步骤5: 得到最终结果", font_size=33,font=font_2, color=_color_1)
+        step5.next_to(step4, DOWN, buff=0.5, aligned_edge=LEFT)
+        
+        final_result = MathTex(
+            r"\lim_{x\to 0}(1+3x)^{\frac{2}{\sin x}} = e^6",
+            font_size=33,
+            color=YELLOW
+        )
+        final_result.next_to(step5, RIGHT, aligned_edge=DOWN, buff=0.3).shift(DOWN*.1)
+        
+        self.play(Write(step5))
+        self.play(Write(final_result))       
+        self.wait(2)
+        self.play(FadeOut(*self.mobjects))
+
+        #===============example-2======================
+        self.play(self.AddTitle("例题 2"))            
+        limit_expr = MathTex(
+            r"\lim_{x\to +\infty}\ln{(1+2^x)}\ln\left(1+\frac{3}{x}\right)", 
+            font_size=32,stroke_width=1)
+        limit_expr.to_edge(UP, buff=1.3).shift(LEFT*4.1)
+        
+       
+        self.play(Write(limit_expr))
+        self.wait(1)
+
+        # 步骤1：分析极限类型
+        step1 = Text("步骤1: 分析极限类型", font_size=30,font=font_2, color=_color_8)
+        step1.next_to(limit_expr, DOWN, buff=0.5, aligned_edge=LEFT)
+        
+        analysis = VGroup(
+            MathTex(r"x \to +\infty \Rightarrow 2^x \to +\infty", 
+                    font_size=29,stroke_width=1),
+            MathTex(r"\Rightarrow \ln(1+2^x) \to +\infty", 
+                    font_size=29,stroke_width=1),
+            MathTex(r"\frac{3}{x} \to 0 \Rightarrow \ln\left(1+\frac{3}{x}\right) \to 0",
+                    font_size=22,stroke_width=1),
+            MathTex(r"\infty \cdot 0 \text{ 型极限}", 
+                    font_size=29,stroke_width=1, color=YELLOW)
+        ).arrange(DOWN, aligned_edge=LEFT, buff=0.15)
+        analysis.next_to(step1, RIGHT, aligned_edge=UP, buff=0.3)
+
+        analysis_copy=analysis[3].copy().next_to(step1, RIGHT, aligned_edge=DOWN, buff=0.3)
+        
+        self.play(Write(step1))
+        self.play(LaggedStartMap(Write, analysis, lag_ratio=0.3))
+        self.wait(.7)
+        self.play(ReplacementTransform(analysis,analysis_copy))
+        self.wait(1)
+
+
+ 
+        
+
+
+
+
+
+    def AddTitle(self,title="temp",font=font_2 ,color:str=_color_1,font_size=35,stroke_width=1.8):
+        title=Text(
+            title,  # 标题文本内容    
+            font=font,  
+            font_size=font_size, 
+            stroke_width=stroke_width     
+            
+        ).to_corner(UL)
+        
+        title_back=Rectangle(
+            width=title.width,
+            height=title.height,
+            fill_opacity=1,
+            color=color
+        ).move_to(title.get_center()+LEFT*3+DOWN*.2)
+
+
+        title_back_pos=title_back.animate.move_to(title.get_center()+DOWN*.2+RIGHT*.2)
+        
+        
+        self.add(title_back)  
+
+        return LaggedStart(
+            Write(title),
+            title_back_pos,
+            lag_ratio=0.3,
+        )
