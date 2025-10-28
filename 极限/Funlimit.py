@@ -2172,8 +2172,97 @@ class Equivalent_infinitesimal_substitution(Scene):
         self.wait(1)
 
 
- 
+         # 步骤2：处理∞·0型极限
+        step2 = Text("步骤2: 处理∞·0型极限", font_size=30,font=font_2, color=_color_8)
+        step2.next_to(step1, DOWN, buff=0.5, aligned_edge=LEFT)
         
+        transform_text = Text(
+            r"一般转化为 0/0 或 ∞/∞ 再处理",
+            font_size=25,
+            font=font_2,
+            color=YELLOW
+        )
+        transform_text.next_to(step2, RIGHT, aligned_edge=DOWN, buff=0.3)
+        
+        self.play(Write(step2))
+        self.play(Write(transform_text))
+        self.wait(1)
+        
+        # 变形为分式
+        transformation = MathTex(
+            r"\ln(1+2^x)\ln\left(1+\frac{3}{x}\right) = \frac{\ln(1+2^x)}{\frac{1}{\ln\left(1+\frac{3}{x}\right)}}",
+            font_size=27,
+            stroke_width=1,
+        )
+        transformation.next_to(transform_text, RIGHT, buff=0.3)
+        
+        self.play(Write(transformation))
+        self.wait(1)
+        
+        # 更好的变形方法
+        better_transform = MathTex(
+            r"\text{或：}  = \frac{\ln\left(1+\frac{3}{x}\right)}{\frac{1}{\ln(1+2^x)}}",
+            font_size=25,
+            stroke_width=1,
+        )
+        better_transform.next_to(transformation, DOWN, aligned_edge=RIGHT, buff=0.3)
+        
+        self.play(Write(better_transform))
+        self.wait(1)
+
+
+        # 步骤3：使用等价无穷小
+        step3 = Text("步骤3: 使用等价替换", font_size=30,font=font_2, color=_color_8)
+        step3.next_to(step2, DOWN, buff=2.1, aligned_edge=LEFT)       
+
+        equiv_text =VGroup( MathTex(
+            r"x \to +\infty",
+            font_size=29,
+            color=YELLOW,
+            stroke_width=1),
+            Text("时的重要近似：",font=font_2,font_size=25,color=YELLOW)
+        ).arrange(RIGHT,buff=0.1,aligned_edge=DOWN
+                  ).next_to(step2,DOWN,aligned_edge=LEFT, buff=0.5)
+        
+        equiv_group = VGroup(
+            MathTex(r"\ln(1+2^x) \sim \ln(2^x) = x\ln 2", 
+                    font_size=25,stroke_width=1),
+            MathTex(r"\ln\left(1+\frac{3}{x}\right) \sim \frac{3}{x}", 
+                    font_size=25,stroke_width=1)
+        ).arrange(DOWN, aligned_edge=LEFT)
+        equiv_group.next_to(equiv_text, RIGHT, aligned_edge=UP, buff=0.3)
+        
+        self.play(Write(step3))
+        self.play(Write(equiv_text))
+        self.play(LaggedStartMap(Write, equiv_group, lag_ratio=0.3))
+        self.wait(2)
+
+        # 步骤4：代入近似
+        step4 = Text("步骤3: 代入近似计算", font_size=24, color=_color_8)
+        step4.next_to(equiv_group, DOWN, buff=0.5, aligned_edge=LEFT)
+        
+        substitution = MathTex(
+            r"\ln(1+2^x)\ln\left(1+\frac{3}{x}\right) \sim (x\ln 2) \cdot \left(\frac{3}{x}\right)",
+            font_size=28,
+            color=YELLOW,
+            stroke_width=1
+        )
+        substitution.next_to(step3, RIGHT, buff=0.3)
+        
+        simplification = MathTex(
+            r"= 3\ln 2",
+            font_size=27,
+            color=YELLOW,
+            stroke_width=1
+        )
+        simplification.next_to(substitution, RIGHT, buff=0.2)
+        
+        # self.play(Write(step4))
+        self.play(Write(substitution))
+        # self.wait(1)
+        self.play(Write(simplification))
+        self.wait(2)
+        self.play(FadeOut(*self.mobjects))    
 
 
 
@@ -2206,3 +2295,291 @@ class Equivalent_infinitesimal_substitution(Scene):
             title_back_pos,
             lag_ratio=0.3,
         )
+    
+
+class GeneralLimitMethod(Scene):
+    def construct(self):
+        self.play(self.AddTitle("函数极限",font_size=41))
+        self.wait(.7)
+
+        contect=Text("函数极限是非常重要的内容，是考察的重点！",
+                     font_size=40,font=font_8,color=_color_4).shift(UP)
+        
+        self.play(Write(contect))
+        self.wait(.7)
+        self.play(FadeOut(contect))
+
+        tex_list = [
+            r"\lim_{x\to 0}\frac{\tan x-\sin x}{x^3}",
+            r"\lim_{x\to 0^+}(\sin x)^x",
+            r"\lim_{x\to +\infty}\left(1+\frac{1}{x}\right)^{x^2}",
+            r"\lim_{x\to 0}\frac{\ln(1+x^2)}{1-\cos x}",
+            r"\lim_{x\to 0}\frac{e^x-e^{-x}-2x}{x-\sin x}",
+            r"\lim_{x\to 0^+}x^{\sin x}",
+            r"\lim_{x\to +\infty}\frac{\ln(1+e^x)}{x}",
+            r"\lim_{x\to 0}(1+3x)^{\frac{2}{\sin x}}",
+            r"\lim_{x\to 0}\frac{\sqrt{1+x}-\sqrt{1-x}}{x}",
+            r"\lim_{x\to +\infty}\left(\frac{x^2+1}{x^2-1}\right)^{x^2}",
+            r"\lim_{x\to 0}\frac{\ln(1+x^2)}{1-\cos x}",
+            r"\lim_{x\to 0}\frac{e^x-e^{-x}-2x}{x-\sin x}",
+            r"\lim_{x\to 0^+}x^{\sin x}",
+            r"\lim_{x\to +\infty}\frac{\ln(1+e^x)}{x}"
+        ]
+
+        # 随机种子（固定，方便复现）
+        # np.random.seed(42)
+        # np.random.seed(4)
+
+        # 已占位置（简单半径避让）
+        occupied = []
+
+        def random_pos():
+            while True:
+                # 避开左上角 ±1.5 区域
+                x = np.random.uniform(-5.8, 7)
+                y = np.random.uniform(-3, 3)
+                if x < -1.5 and y > 1.5:
+                    continue
+                # 简单半径重叠检测
+                if all((x - ox)**2 + (y - oy)**2 > 1.2**2 for ox, oy in occupied):
+                    occupied.append((x, y))
+                    return np.array([x, y, 0])
+
+        color_pool = [RED, ORANGE, YELLOW, TEAL, BLUE, PINK, GOLD, WHITE, LIGHT_BROWN]
+
+        # 生成题目
+        mobs = VGroup()
+        for tex in tex_list:
+            eq = MathTex(
+                tex,
+                font_size=30,
+                stroke_width=1,
+                # color=np.random.choice(color_pool),
+            ).scale(np.random.uniform(0.8, 1.0)).move_to(random_pos())
+            mobs.add(eq)
+
+
+        # 逐题淡入（可调 lag）
+        self.play(LaggedStartMap(Write, mobs, lag_ratio=0.4), run_time=5)
+        self.wait()
+
+
+        self.play(LaggedStartMap(FadeOut, mobs, lag_ratio=0.3), run_time=5)
+
+        #=============Page 2================
+        title_1=Text(
+            "极限运算法则",font_size=29,font=font_2,
+        ).to_corner(UL).shift(RIGHT*2.1+DOWN*.4)
+        title_1.add_background_rectangle(color=_color_4)
+        self.play(Create(title_1))
+        self.wait(.7)
+
+        # 创建法则列表
+        rules = [
+            ("和/差法则", r"\lim[f(x) \pm g(x)] = \lim f(x) \pm \lim g(x)", r"\lim f(x), \lim g(x)\text{存在}"),
+            ("积法则", r"\lim[f(x) \cdot g(x)] = \lim f(x) \cdot \lim g(x)", r"\lim f(x), \lim g(x)\text{存在}"),
+            ("商法则", r"\lim\left[\frac{f(x)}{g(x)}\right] = \frac{\lim f(x)}{\lim g(x)}", r"\lim f(x), \lim g(x)\text{存在}, \lim g(x) \neq 0"),
+            ("常数倍法则", r"\lim[c \cdot f(x)] = c \cdot \lim f(x)", r"\lim f(x)\text{存在}, c\text{为常数}"),
+            ("幂法则", r"\lim[f(x)]^n = [\lim f(x)]^n", r"\lim f(x)\text{存在}, n\in\mathbb{N}^+"),
+            ("根式法则", r"\lim[\sqrt[n]{f(x)}] = \sqrt[n]{\lim f(x)}", r"\lim f(x)\text{存在且非负（n为偶数时）}"),
+            ("复合函数法则", r"\lim f(g(x)) = f(\lim g(x))", r"\lim g(x)=L\text{存在}, f\text{在}L\text{处连续}"),
+        ]
+        
+        # 创建规则组
+        rule_group = VGroup()
+        for i, (name, expr, condition) in enumerate(rules):
+            rule_box = VGroup()
+            
+            # 名称
+            name_text = Text(name, font_size=27, font=font_2,color=YELLOW)
+            
+            # 表达式
+            expr_tex = MathTex(expr, font_size=28,stroke_width=1)
+            
+            # 条件
+            cond_tex = MathTex(condition, font_size=23, color=_color_8,stroke_width=1)
+            
+            # 排列
+            rule_box = VGroup(name_text, expr_tex, cond_tex)
+            rule_box.arrange(RIGHT, buff=0.2)
+            
+            
+            rule_group.add(rule_box)
+        
+        # 排列规则
+        rule_group.arrange(DOWN,aligned_edge=LEFT,buff=.3)
+      
+        
+        
+        self.play(LaggedStartMap(Write,rule_group,lag_ratio=0.3),run_time=5)
+        self.wait(1.5)
+        
+        # 强调前提条件
+        reminder_text = Text("重要提醒：所有法则的前提是相关极限存在！", 
+                           font_size=30,font=font_2, color=RED,weight=BOLD)
+        reminder_text.to_edge(DOWN)
+        
+        self.play(Write(reminder_text))
+        self.wait(1)
+        self.play(LaggedStartMap(FadeOut,[reminder_text,rule_group,title_1],lag_ratio=0.3),run_time=2)
+
+        #=============Page 3================
+        title_2=Text(
+            "极限存在准则",font_size=29,font=font_2,
+        ).to_corner(UL).shift(RIGHT*2.1+DOWN*.4)
+        title_2.add_background_rectangle(color=_color_4)
+        self.play(Write(title_2))
+        self.wait(.7)
+
+
+        title_3=Text(
+            "夹逼准则",font_size=25,font=font_2,weight=BOLD,
+        ).next_to(title_2,RIGHT,aligned_edge=DOWN)
+        
+        self.play(Write(title_3))
+
+        # 1. 夹逼定理核心思想（中文 + 面包夹火腿可视化）
+        title1 = Text(
+            "1. 夹逼定理的核心思想", 
+            font_size=28,font=font_2).next_to(title_2,DOWN).shift(LEFT*1.2)
+        title1.add_background_rectangle(color=_color_8,buff=.05)
+        para1  = Paragraph(
+            "想象一个简单的场景：",
+            "你有两片面包，一片在另一片的上方，中间夹着一片火腿。",
+            "如果两片面包同时向中间移动，最终汇合在一个面，",
+            "那么中间的火腿毫无疑问也会被压到同一个面。",
+            font_size=25,
+            font=font_2,
+            line_spacing=1
+            ).next_to(title1, DOWN,aligned_edge=LEFT).shift(RIGHT*0.5)
+
+        bread1 = Rectangle(width=4, height=0.4, color=WHITE, stroke_width=1).shift(UP*0.7)
+        bread2 = Rectangle(width=4, height=0.4, color=WHITE, stroke_width=1).shift(DOWN*0.7)
+        ham    = Rectangle(width=3.5, height=0.3, color=YELLOW, stroke_width=1)
+
+        bread_group = VGroup(bread1, ham, bread2).arrange(DOWN, buff=0.1).next_to(para1, RIGHT, buff=0.3)
+
+        self.play(Write(title1))
+        self.play(Write(para1), FadeIn(bread_group))
+        self.wait(1)
+
+        # 2. 数学表述（中文 + 函数版本）
+        title2 = Text(
+            "2. 夹逼定理的数学表述", 
+            font=font_2,
+            font_size=28).next_to(title1, DOWN, buff=2.5,aligned_edge=LEFT)
+        title2.add_background_rectangle(color=_color_8,buff=.05)
+        para2  = Paragraph(
+            "在数学上，这就是夹逼定理的思想：",
+            "如果你能把一个“复杂”的函数 f(x) 夹在两个“简单”的函数 g(x) 和 h(x) 之间，",
+            "并且这两个简单函数在 x 趋近于某个值 a 时，有相同的极限 L，",
+            "那么被夹在中间的 f(x) 也别无选择，只能拥有相同的极限 L。",
+            font_size=25, 
+            font=font_2,
+            line_spacing=1
+            ).scale(0.9).next_to(title2,DOWN,aligned_edge=LEFT).shift(RIGHT*0.5)
+        
+        rule = MathTex(
+            r"\text{若 }g(x)\le f(x)\le h(x),\;\lim_{x\to a}g(x)=L,\;\lim_{x\to a}h(x)=L,"
+            r"\text{则}\,\lim_{x\to a}f(x)=L.",
+            font_size=30, stroke_width=1, color=_color_4
+        ).to_edge(DOWN, buff=1.5)
+        
+        self.play(Write(title2))
+        self.play(Write(para2))
+        self.wait()
+        self.play(LaggedStart(FadeOut(para2),Write(rule),lag_ratio=.3))
+
+        self.play(LaggedStartMap(FadeOut,
+            [title1, title2, rule, para1, bread_group], lag_ratio=0.3), run_time=1.5)
+
+        #=============Page 4================
+        example4=VGroup(
+            Text(
+            "例题：",font_size=30,font=font_2,
+            ),
+            MathTex(
+                r"\lim_{n \to \infty} \frac{1^2 + 2^2 + \cdots + n^2}{n^3}",
+                font_size=30, stroke_width=1, 
+            )
+        ).arrange(RIGHT).next_to(title_2,DOWN).shift(LEFT*.3)
+
+        self.play(Write(example4))
+
+        exam_rec1=self.EmphasizeText(example4[1][0][6:18])
+        self.wait(1)
+        self.play(Uncreate(exam_rec1))
+
+        # 第二步：寻找上下界
+        step2_title = Text(
+            "寻找上下界", font_size=30, color=YELLOW,font=font_2,
+            ).next_to(example4, DOWN,buff=.3, aligned_edge=LEFT)
+        
+        self.play(Write(step2_title))
+
+        recs=[]
+        for index in [6,9,15]:
+            recs.append(Circumscribe(example4[1][0][index:index+2]))
+        self.play(LaggedStart(*recs,lag_ratio=.4))
+
+        lower_bound_text =VGroup( 
+            Text(
+            "每一项k²都≥1，"
+            "所以总和:",
+            font_size=23,
+            font=font_2,
+            color=RED
+            ),
+            MathTex(
+                r"1^2 + 2^2 + \cdots + n^2>n \cdot 1 = n",
+                font_size=28,
+                stroke_width=1,
+            )
+        ).arrange(RIGHT).next_to(step2_title,RIGHT)
+
+        self.play(Write(lower_bound_text))
+
+
+
+
+        
+        
+
+
+
+
+
+    def AddTitle(self,title="temp",font=font_2 ,color:str=_color_1,font_size=35,stroke_width=1.8):
+        title=Text(
+            title,  # 标题文本内容    
+            font=font,  
+            font_size=font_size, 
+            stroke_width=stroke_width     
+            
+        ).to_corner(UL)
+        
+        title_back=Rectangle(
+            width=title.width,
+            height=title.height,
+            fill_opacity=1,
+            color=color
+        ).move_to(title.get_center()+LEFT*3+DOWN*.2)
+
+
+        title_back_pos=title_back.animate.move_to(title.get_center()+DOWN*.2+RIGHT*.2)
+        
+        
+        self.add(title_back)  
+
+        return LaggedStart(
+            Write(title),
+            title_back_pos,
+            lag_ratio=0.3,
+        )    
+
+    def EmphasizeText(self,target,color:str=YELLOW,stroke_width=4):
+        rec_target=Circumscribe(target,color=color,stroke_width=stroke_width)
+        rec2_target=SurroundingRectangle(target,color=color,stroke_width=stroke_width)
+        self.play(LaggedStart(rec_target,Create(rec2_target),lag_ratio=.5))
+        return rec2_target
+
