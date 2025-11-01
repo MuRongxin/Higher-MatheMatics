@@ -13,14 +13,14 @@ config.tex_template = TexTemplate(
 )
 _color_1="#39c5bb"  
 _color_2="#C1003C"  
-_color_3="#07A1B1"  
 _color_3="#11999e"
-_color_4="#ff2e63"
 _color_4=ManimColor("#ff2e63")
 _color_5="#79D87E"
-_color_6="#0B3B6A"
+_color_6="#fff4e1"
 _color_7="#ffaaa5"
 _color_8="#b9d7ea"
+_color_9="#7dace4"
+_color_10=ManimColor("#aedefc")
 
 deyi_hei_path = r"./font/SmileySans-Oblique-2.ttf"
 font_path=r".\font\SmileySans-Oblique-2.ttf"
@@ -2493,7 +2493,135 @@ class GeneralLimitMethod(Scene):
         self.play(LaggedStartMap(FadeOut,
             [title1, title2, rule, para1, bread_group], lag_ratio=0.3), run_time=1.5)
 
+        
         #=============Page 4================
+        page_4Group=VGroup()
+        example4=VGroup(
+            Text(
+            "例题：",font_size=30,font=font_2,
+            ),
+            MathTex(
+                r"\lim_{x \to 0} x^2 \cdot \sin\left(\frac{1}{x}\right)",
+                font_size=30, stroke_width=1, 
+            )
+        ).arrange(RIGHT).next_to(title_2,DOWN).shift(LEFT*1.3)
+
+        self.play(Write(example4))
+        page_4Group.add(example4)
+
+        step2_title = Text(
+            "寻找上下界：", font_size=29, color=YELLOW,font=font_2,
+            ).next_to(example4, DOWN,buff=.3, aligned_edge=LEFT)
+        
+        self.play(Write(step2_title))
+        page_4Group.add(step2_title)
+
+        step2_ineq = MathTex(
+            "-1 \\leq \\sin\\frac{1}{x} \\leq 1 \\quad",         
+            font_size=27,
+            stroke_width=1,
+            color=_color_8
+        ).next_to(step2_title, RIGHT)
+
+        self.play(Write(step2_ineq))
+        page_4Group.add(step2_ineq)
+        self.wait(.7)
+
+
+        # 第三步：构造不等式
+        step3_title = Text(
+            "构造不等式：", font_size=29, color=YELLOW,font=font_2,
+            ).next_to(step2_title, DOWN,buff=.4, aligned_edge=LEFT)
+        
+        self.play(Write(step3_title))
+        page_4Group.add(step3_title)
+        self.wait(.7)
+
+        inal_ineq = MathTex(
+            "-x^2 \\leq x^2 \\cdot \\sin\\left(\\frac{1}{x}\\right) \\leq x^2", 
+            font_size=28, 
+            color=_color_8,
+            stroke_width=1,
+            ).next_to(step3_title, RIGHT)
+        
+        self.play(Write(inal_ineq))
+        page_4Group.add(inal_ineq)
+        self.wait(.7)
+
+        # 第4步：计算边界函数的极限
+        step4_title = Text(
+            "计算边界函数的极限：", font_size=29, color=YELLOW,font=font_2,
+            ).next_to(step3_title, DOWN,buff=.4, aligned_edge=LEFT)
+        
+        self.play(Write(step4_title))
+        page_4Group.add(step4_title)
+        self.wait(.7)
+
+        step4_process=MathTex(
+            r"\begin{aligned}&\lim_{x \to 0} (-x^2) =0 \\ &\lim_{x \to 0} x^2 = 0 \end{aligned}",
+            font_size=28,
+            stroke_width=1,
+            color=RED
+        ).next_to(step4_title,RIGHT,aligned_edge=UP)
+
+
+        step3_rec1=self.EmphasizeText(inal_ineq[0][0:3],color=RED)
+        step3_rec2=self.EmphasizeText(inal_ineq[0][16:18],color=RED)
+        page_4Group.add(step3_rec1)
+        page_4Group.add(step3_rec2)
+         
+        self.play(Write(step4_process))
+        page_4Group.add(step4_process)
+        self.wait(.7)
+
+
+        # 第5步：计算边界函数的极限
+        step5_title = Text(
+            "应用夹逼定理得出结论：", font_size=29, color=YELLOW,font=font_2,
+            ).next_to(step4_title, DOWN,buff=1.2, aligned_edge=LEFT)
+        
+        self.play(Write(step5_title))
+        page_4Group.add(step5_title)
+        self.wait(.7)
+
+        conclusion=VGroup(
+            VGroup(
+                Text("由于函数",font=font_2,font_size=25),
+                MathTex(r"f(x) = x^2 \cdot \sin\left(\frac{1}{x}\right)",
+                    font_size=28, stroke_width=1),
+                Text("被夹在两个函数之间：",font=font_2,font_size=25),
+                MathTex(r"g(x) = -x^2, h(x) = x^2",font_size=28, stroke_width=1
+                )        
+            ).arrange(RIGHT),
+            VGroup(
+                Text("并且当",font=font_2,font_size=25),
+                MathTex(r"x \to 0",font_size=28, stroke_width=1),
+                Text("时，两个边界函数都趋近于 0，根据夹逼定理：",font=font_2,font_size=25),
+            ).arrange(RIGHT),
+            
+        ).arrange(DOWN,aligned_edge=LEFT).next_to(
+            step5_title,RIGHT,aligned_edge=UP).shift(UP*.3)
+
+        resoult1=MathTex(
+                r"\lim_{x \to 0} x^2 \cdot \sin\left(\frac{1}{x}\right) = 0",
+                font_size=28, stroke_width=1,color=RED
+        ).next_to(conclusion,DOWN)
+        
+        
+        self.play(Write(conclusion))
+        page_4Group.add(conclusion)
+        self.play(Write(resoult1))
+        page_4Group.add(resoult1)
+        self.wait(1)
+
+        self.play(LaggedStartMap(FadeOut, page_4Group, lag_ratio=0.3), run_time=2)
+   
+ 
+        
+        
+        
+        
+        #=============Page 5================
         example4=VGroup(
             Text(
             "例题：",font_size=30,font=font_2,
@@ -2504,7 +2632,9 @@ class GeneralLimitMethod(Scene):
             )
         ).arrange(RIGHT).next_to(title_2,DOWN).shift(LEFT*.3)
 
+        page5Group=VGroup()
         self.play(Write(example4))
+        page5Group.add(example4)
 
         exam_rec1=self.EmphasizeText(example4[1][0][6:18])
         self.wait(1)
@@ -2516,6 +2646,7 @@ class GeneralLimitMethod(Scene):
             ).next_to(example4, DOWN,buff=.3, aligned_edge=LEFT)
         
         self.play(Write(step2_title))
+        page5Group.add(step2_title)
 
         recs=[]
         for index in [6,9,15]:
@@ -2528,16 +2659,164 @@ class GeneralLimitMethod(Scene):
             "所以总和:",
             font_size=23,
             font=font_2,
-            color=RED
+            color=_color_8
             ),
-            MathTex(
-                r"1^2 + 2^2 + \cdots + n^2>n \cdot 1 = n",
+            MathTex(               
+                r"1^2 + 2^2 + \cdots + n^2",
+                r" \ge 1+1+1+ \cdots +1",
+                r" = n \cdot 1 = n",
                 font_size=28,
                 stroke_width=1,
+                color=RED
             )
         ).arrange(RIGHT).next_to(step2_title,RIGHT)
 
         self.play(Write(lower_bound_text))
+        page5Group.add(lower_bound_text)
+
+        lower_brace=Brace(lower_bound_text[1][1][1:],UP,color=_color_8)
+        lower_brace_text=Text("n 个 1 相加",font_size=23,font=font_2,color=_color_8).next_to(lower_brace,UP)
+        self.play(FadeIn(lower_brace),Write(lower_brace_text))
+        self.wait(1)
+        self.play(FadeOut(lower_brace),FadeOut(lower_brace_text))
+
+
+        upper_bound_text =VGroup(
+            Text(
+            "每一项k²都≤n²，"
+            "所以总和:",
+            font_size=23,
+            font=font_2,
+            color=_color_8
+            ),
+            MathTex(
+                r"1^2 + 2^2 + \cdots + n^2 \le " ,
+                r"n^2 + n^2 + \cdots + n^2",
+                r"= n \cdot n^2 = n^3",
+                font_size=28,
+                stroke_width=1,
+                color=RED
+            )
+        ).arrange(RIGHT).next_to(lower_bound_text, DOWN, aligned_edge=LEFT)        
+        
+        self.play(Write(upper_bound_text))
+        page5Group.add(upper_bound_text)
+
+        upper_brace=Brace(upper_bound_text[1][1],DOWN,color=_color_8)
+        upper_brace_text=Text("n 个 n² 相加",font_size=23,font=font_2,color=_color_8).next_to(upper_brace,DOWN)
+        self.play(FadeIn(upper_brace),Write(upper_brace_text))
+
+        self.wait(1.3)
+        self.play(FadeOut(upper_brace),FadeOut(upper_brace_text))
+
+        # 第三步：构造不等式
+        step3_title = Text(
+            "构造不等式", font_size=30,font=font_2, 
+            color=YELLOW).next_to(
+                step2_title, DOWN,buff=1.5, aligned_edge=LEFT)
+        
+        step3_ineq = MathTex(
+            "\\frac{n}{n^3} \\leq \\frac{1^2 + 2^2 + \\cdots + n^2}{n^3} \\leq \\frac{n^3}{n^3}",
+            "\\; \\Longrightarrow",
+            stroke_width=1,
+            font_size=25,
+            color=_color_8,
+        ).next_to(step3_title, RIGHT)
+        
+        step3_simplify = MathTex(
+            "\\frac{1}{n^2} \\leq \\frac{1^2 + 2^2 + \\cdots + n^2}{n^3} \\leq 1",
+            stroke_width=1,
+            font_size=25,
+            color=RED,
+        ).next_to(step3_ineq, RIGHT)
+        
+        self.play(Write(step3_title))
+        page5Group.add(step3_title)
+        self.wait(.7)
+        self.play(Write(step3_ineq))     
+        page5Group.add(step3_ineq)
+        self.play(Write(step3_simplify))
+        page5Group.add(step3_simplify)
+        self.wait(1)
+
+        eph_rec1=self.EmphasizeText(step3_simplify[0][0:4])
+        eph_rec2=self.EmphasizeText(step3_simplify[0][21:22])
+        page5Group.add(eph_rec1,eph_rec2)
+        lable1=Text(
+            "极限为 0",
+            font_size=25,
+            font=font_2,
+        ).next_to(step3_simplify[0][0:4],DOWN)
+        lable2=Text(
+            "极限为 1",
+            font_size=25,
+            font=font_2,
+        ).next_to(step3_simplify[0][21:22],DOWN)
+        self.play(Write(lable1),Write(lable2))
+        page5Group.add(lable1,lable2,title_2,title_3)
+        self.wait(2)
+        
+        self.play(LaggedStartMap(FadeOut, page5Group,lag_ratio=.3))
+
+
+
+        #=============page 6 =============
+        title_4=Text(
+            "两个重要极限",font_size=29,font=font_2,
+        ).to_corner(UL).shift(RIGHT*2.1+DOWN*.4)
+        title_4.add_background_rectangle(color=_color_4)
+        page6Group=VGroup()
+        self.play(Write(title_4))
+        page6Group.add(title_4)
+        self.wait(.7)
+
+        title3 = Text(
+            "第一个重要极限: ", font_size=30,font=font_2, color=BLUE,weight=BOLD
+            ).to_corner(UL).shift(DOWN*1.3+RIGHT*.2)
+        
+        self.play(Write(title3))
+        page6Group.add(title3)
+        self.wait(.5)
+
+        step1 = MathTex(
+            "\\lim_{n \\rightarrow \\infty} \\frac{1}{n} = 0",
+            font_size=30,
+            stroke_width=1,
+            color=_color_4,
+        ).next_to(title3, RIGHT)
+
+        self.play(Write(step1))
+       
+        self.wait(1.5)
+
+        title4 = Text(
+            "第二个重要极限: ", font_size=30,font=font_2, color=BLUE,weight=BOLD
+            ).next_to(title3, DOWN, buff=.5, aligned_edge=LEFT)
+        self.play(Write(title4))
+        page6Group.add(title4)
+        self.wait(.5)
+
+        step2 = MathTex(
+            "\\lim_{n \\rightarrow \\infty} (1 + \\frac{1}{n})^n = e",
+            font_size=30,
+            stroke_width=1,
+            color=_color_4,
+        ).next_to(title4, RIGHT)
+        self.play(Write(step2))
+        
+        self.wait(1.5)
+
+        title5 = Text(
+            "第一个重要极限的证明", font_size=28,font=font_2,color=_color_10,weight=BOLD
+            ).next_to(title_4,RIGHT)
+        
+        self.play(LaggedStart(
+            ReplacementTransform(title3,title5),
+            FadeOut(title4),FadeOut(step1),FadeOut(step2),
+            lag_ratio=.3
+        ))
+        
+        self.wait(.7)
 
 
 
