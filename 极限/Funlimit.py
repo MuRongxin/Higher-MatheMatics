@@ -2779,7 +2779,7 @@ class GeneralLimitMethod(Scene):
         self.wait(.5)
 
         step1 = MathTex(
-            "\\lim_{x \\rightarrow \\infty} \\frac{1}{x} = 0",
+            "\\lim_{x \\rightarrow 0} \\frac{\\sin x}{x} = 1",
             font_size=30,
             stroke_width=1,
             color=_color_4,
@@ -2798,7 +2798,7 @@ class GeneralLimitMethod(Scene):
 
         step2 = MathTex(
             "\\lim_{x \\rightarrow \\infty} (1 + \\frac{1}{x})^x = e \\text{ 或 }",
-            r"\lim_{x \to 0}(1+x)^{\frac{1}{x}}",
+            r"\lim_{x \to 0}(1+x)^{\frac{1}{x}} = e ",
             font_size=30,
             stroke_width=1,
             color=_color_4,
@@ -3289,11 +3289,132 @@ class GeneralLimitMethod(Scene):
         self.wait(.7)
         
         # 证明思路概述
-        proof_idea = Text("证明思路：使用单调有界原理", font_size=30, color=YELLOW)
+        proof_idea = Text("证明思路：使用单调有界原理", 
+                          font=font_2,font_size=30, color=YELLOW)
         self.play(Write(proof_idea))
-        self.wait(2)
+        self.wait(1)
         self.play(FadeOut(proof_idea))
 
+        axes = Axes(
+            x_range=[0, 100, 10],
+            y_range=[1.8, 3, 0.3],
+            x_length=10,
+            y_length=5,
+            axis_config={"color": BLUE},
+            tips=False,
+        )
+        axes.add_coordinates()
+        axis_labels = axes.get_axis_labels(x_label="x", y_label="f(x)")
+        
+        # 移动坐标轴到合适位置
+        axes_group = VGroup(axes, axis_labels)
+        axes_group.shift(DOWN*0.5)
+        
+        self.play(Create(axes), Write(axis_labels))
+        self.wait(1)
+        
+        # 定义数列函数
+        def sequence(n):
+            return (1 + 1/n)**n
+        
+        # 创建数列点
+        n_values = range(1, 101)
+        sequence_points = [axes.coords_to_point(n, sequence(n)) for n in n_values]
+        sequence_dots = VGroup(*[Dot(point, color=RED, radius=0.03) for point in sequence_points])
+        
+        # 创建数列连线
+        sequence_lines = VGroup()
+        for i in range(len(sequence_points) - 1):
+            line = Line(sequence_points[i], sequence_points[i+1], color=RED, stroke_width=2)
+            sequence_lines.add(line)
+        
+        # 显示极限线 e
+        e_value = np.e
+        e_line = DashedLine(
+            axes.coords_to_point(0, e_value),
+            axes.coords_to_point(100, e_value),
+            color=YELLOW
+        )
+        e_label = MathTex("y = e", color=YELLOW).next_to(axes.coords_to_point(100, e_value), RIGHT)
+        e_value_text = MathTex(f"e \\approx {e_value:.4f}", color=YELLOW).next_to(e_label, DOWN)
+        
+        
+        # 显示数列
+        self.play(Create(sequence_dots))
+        self.play(Create(sequence_lines))
+        self.wait(1)
+
+
+        # 显示极限
+        self.play(Create(e_line), Write(e_label), Write(e_value_text))
+        self.wait(2)
+
+
+
+        self.play(
+            FadeOut(axes_group),
+            FadeOut(sequence_dots),
+            FadeOut(sequence_lines),
+            FadeOut(e_line),FadeOut(e_label),FadeOut(e_value_text),
+            FadeOut(title8),FadeOut(step2)
+        )
+
+
+
+        #============== page-8========================
+        title9 = Text(
+            "例题：", font_size=28,font=font_2,weight=BOLD
+            ).next_to(title_4,RIGHT)
+        
+        # self.play(Write(title9))
+        self.wait(.5)
+
+        know_1 = MathTex(
+            r"\lim_{x \rightarrow 0} \frac{\sin x}{x} = 1",
+            font_size=30,
+            stroke_width=1,
+            color=_color_10,
+        ).next_to(title_4, RIGHT)
+
+
+        know_2 = MathTex(
+            "\\lim_{x \\rightarrow \\infty} (1 + \\frac{1}{x})^x = e \\text{ 或 }",
+            r"\lim_{x \to 0}(1+x)^{\frac{1}{x}}=e",
+            font_size=30,
+            stroke_width=1,
+            color=_color_10,
+        ).next_to(know_1, RIGHT)
+
+        self.play(Write(know_1),Write(know_2))
+        
+
+        exam_ques1=MathTex(
+            r"\lim_{x\to \infty} \frac{3x^2+5}{5x+3} \sin\frac{2}{x}",
+            font_size=33,
+            stroke_width=1,           
+        ).next_to(title_4, DOWN).shift(LEFT*1.3)
+
+        self.play(Write(exam_ques1))
+
+        self.wait(1.5)
+
+
+        k1_rec1=self.EmphasizeText(know_1[0][9:10],color=_color_4)
+        k1_rec2=self.EmphasizeText(know_1[0][11:12],color=_color_4)
+
+        q1_rec1=self.EmphasizeText(exam_ques1[0][19:22],color=YELLOW)
+       
+       
+        
+        step1_math = MathTex(
+            r"= \lim_{x\to \infty} \frac{3x^2+5}{5x+3} \cdot ",
+            r"\frac{\sin\frac{2}{x}}{\frac{2}{x}} \cdot ",
+            r"\frac{2}{x}",
+            font_size=30,
+            stroke_width=1,
+        ).next_to(exam_ques1, DOWN).align_to(exam_ques1, LEFT)
+
+        self.play(Write(step1_math[0]))
         
         
 
