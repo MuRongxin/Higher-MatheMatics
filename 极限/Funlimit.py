@@ -2779,7 +2779,7 @@ class GeneralLimitMethod(Scene):
         self.wait(.5)
 
         step1 = MathTex(
-            "\\lim_{n \\rightarrow \\infty} \\frac{1}{n} = 0",
+            "\\lim_{x \\rightarrow \\infty} \\frac{1}{x} = 0",
             font_size=30,
             stroke_width=1,
             color=_color_4,
@@ -2797,7 +2797,8 @@ class GeneralLimitMethod(Scene):
         self.wait(.5)
 
         step2 = MathTex(
-            "\\lim_{n \\rightarrow \\infty} (1 + \\frac{1}{n})^n = e",
+            "\\lim_{x \\rightarrow \\infty} (1 + \\frac{1}{x})^x = e \\text{ 或 }",
+            r"\lim_{x \to 0}(1+x)^{\frac{1}{x}}",
             font_size=30,
             stroke_width=1,
             color=_color_4,
@@ -2818,11 +2819,491 @@ class GeneralLimitMethod(Scene):
         
         self.wait(.7)
 
+        # 创建单位圆
+        axes = Axes(
+            x_range=[-1.5, 1.5, 1],
+            y_range=[-1.5, 1.5, 1],
+            x_length=5.7,
+            y_length=5.7,
+            axis_config={"color": BLUE,
+                         "include_tip": False,
+                         "include_ticks":False,
+            },
+        ).shift(DOWN*.4)
+        
+        # circle = Circle(radius=1.3, color=WHITE).move_to(axes.c2p(0,0))
+        dot_O = Dot(axes.coords_to_point(0, 0), color=YELLOW)
+        label_O = Text("O", font_size=25).next_to(dot_O, DL, buff=0.1)
+
+        def circle_function(t):
+            # 圆心在 (0, 0)，半径为 1.3
+            center_x, center_y = 0, 0
+            radius = 1.3
+            return axes.coords_to_point(
+                center_x + radius * np.cos(t),
+                center_y + radius * np.sin(t)
+            )
+
+        circle = ParametricFunction(
+            circle_function,
+            t_range=[0, 2*PI],            
+            stroke_width=4
+        )
+        
+        # 定义角度
+        angle = PI/4  # 初始角度为PI/4度
+        R=1.3
+        dot_A = Dot(axes.coords_to_point(1.3, 0), color=YELLOW)
+        label_A = Text("A", font_size=25,weight=BOLD).next_to(dot_A, RIGHT, buff=0.1)
+        dot_B = Dot(axes.coords_to_point(1.3*np.cos(angle), 1.3*np.sin(angle)), color=YELLOW)
+        label_B = Text("B", font_size=25,weight=BOLD).next_to(dot_B, UP, buff=0.1)        
+        
+        graph_group=VGroup()
+        
+        # 创建扇形
+        sector = Sector(
+            radius=axes.c2p(1.3,0)[0], 
+            angle=angle, color=BLUE_E, fill_opacity=0.5,stroke_width=2
+        ).shift(DOWN*.4)
+        
+        # 创建三角形 OAB
+        triangle_OAB = Polygon(
+            axes.coords_to_point(0, 0),
+            axes.coords_to_point(R, 0),
+            axes.coords_to_point(np.cos(angle)*R, np.sin(angle)*R),
+            color=GREEN,
+            fill_opacity=0.5
+        )
+        
+        # 创建切线
+        line_AC = Line(
+            axes.coords_to_point(R, 0),
+            axes.coords_to_point(R, R*np.tan(angle)),
+            color=RED
+        )
+        dot_C = Dot(axes.coords_to_point(R, R*np.tan(angle)), color=YELLOW)
+        label_C = Text(
+            "C", font_size=23,weight=BOLD).next_to(dot_C, RIGHT, buff=0.1)
+        
+        # 创建三角形 OAC
+        triangle_OAC = Polygon(
+            axes.coords_to_point(0, 0),
+            axes.coords_to_point(R, 0),
+            axes.coords_to_point(R, R*np.tan(angle)),
+            color=RED_E,
+            fill_opacity=0.3
+        )
+        
+        # 显示所有几何元素
+        self.play(Create(axes), Create(circle))
+        self.play(Create(dot_O), Write(label_O), Create(dot_A), Write(label_A))
+        self.wait(.3)
+
+        # 动态绘制角度
+        line_OA = Line(axes.coords_to_point(0, 0), axes.coords_to_point(1.3, 0), color=YELLOW)
+        line_OB = Line(axes.coords_to_point(0, 0), axes.coords_to_point(1.3*np.cos(angle), 1.3*np.sin(angle)), color=YELLOW)
+        
+        self.play(Create(line_OA), Create(line_OB))
+        self.play(Create(dot_B), Write(label_B))
+
+        # 显示扇形
+        self.play(Create(sector))
+        sector_label = Text(
+            "扇形OAB", font_size=21,font=font_2, weight=BOLD,
+            color=BLUE).next_to(sector, RIGHT, buff=0.1)
+        self.play(Write(sector_label)) 
+               
+        # 显示角度弧
+        arc = Arc(radius=0.5, angle=angle, color=YELLOW).shift(DOWN*.4)
+        angle_label = MathTex(
+            "x", 
+            font_size=30,stroke_width=1
+            ).move_to(arc.get_center()).shift(UP*.1+RIGHT*.2)
+        self.play(Create(arc), Write(angle_label))
+
+        # 显示三角形OAB
+        self.play(Create(triangle_OAB))
+        triangle_OAB_label = Text(
+            "△OAB", 
+            font_size=20,
+            weight=BOLD, 
+            color=GREEN).next_to(triangle_OAB, LEFT).shift(RIGHT*1.2+UP*.3)
+        self.play(Write(triangle_OAB_label))
+        
+
+        # 显示切线和三角形OAC
+        self.play(Create(line_AC), Create(dot_C), Write(label_C))
+        self.play(Create(triangle_OAC))
+        triangle_OAC_label = Text(
+            "△OAC", 
+            font_size=20, weight=BOLD,
+            color=RED).next_to(triangle_OAC, RIGHT, buff=0.1).shift(UP*.2)
+        self.play(Write(triangle_OAC_label))
+        
+        self.wait(2)
+        
+        length_lable=Text(
+            "OA=1", 
+            font_size=20, 
+            weight=BOLD, 
+        ).next_to(triangle_OAB, DOWN, buff=0.1)
+
+        graph_group.add(
+            triangle_OAB.copy(),            
+            sector.copy(),
+            triangle_OAC.copy(),
+            arc.copy(),
+            dot_A.copy(),
+            dot_B.copy(),
+            dot_C.copy(),
+            dot_O.copy(),
+            label_A.copy(),
+            label_B.copy(),
+            label_C.copy(),
+            label_O.copy().next_to(axes.c2p(0,0),LEFT),            
+            angle_label.copy()       
+        )
+
+        self.play(graph_group.animate.shift(UP*2+RIGHT*4.2),Write(length_lable))
+        self.wait(.8)
+        
+
+
+
+        graph_group_1=VGroup(
+            graph_group[1],
+            graph_group[4].copy().set_color(BLUE),
+            graph_group[5].copy().set_color(BLUE),
+            graph_group[7].copy().set_color(BLUE),
+            graph_group[8].copy(),
+            graph_group[9].copy(),
+            graph_group[11].copy(),
+            graph_group[12].copy(),
+            graph_group[3].copy().set_color(BLUE),
+        )
+
+        graph_group_2=VGroup(
+            graph_group[2],
+            graph_group[4].copy().set_color(RED_E),
+            graph_group[6].set_color(RED_E),
+            graph_group[7].copy().set_color(RED_E),
+            graph_group[8].copy(),
+            graph_group[11].copy(),
+            graph_group[10],
+            graph_group[12].copy(),
+            graph_group[3].copy().set_color(RED_E),
+        )
+
+        self.play(LaggedStart(
+            graph_group_1.animate.shift(DOWN*2.4),
+            graph_group_2.animate.shift(DOWN*5.4),
+            lag_ratio=0.3
+            )
+        )
+
+        # 显示面积不等式
+        inequality_text = MathTex(
+            r"S_\text{△OAB} < S_\text{扇形OAB} < S_\text{△OAC}",
+            font_size=30,
+            stroke_width=1,
+            color=_color_4
+        ).next_to(title_4, DOWN, buff=.7).shift(LEFT*.7)
+        self.play(Write(inequality_text))
+        self.wait(2)
+
+        triangle_copy=VGroup(
+            triangle_OAB.copy().set_color(GOLD),
+            arc.copy(),
+            dot_A.copy(),
+            dot_B.copy(),          
+            dot_O.copy(),
+            label_A.copy(),
+            label_B.copy(),
+            label_O.copy().next_to(axes.c2p(0,0),LEFT),            
+            angle_label.copy()
+        ).next_to(inequality_text,DOWN).scale(.8).shift(LEFT*.7+UP*.3)
+
+        tips1=MathTex(
+            r"S_\text{△OAB}=\frac{1}{2}OA \cdot OB \cdot \sin x",
+            font_size=30,
+            stroke_width=1,
+            color=YELLOW
+        ).next_to(triangle_copy,DOWN,buff=.1)
+        
+
+        self.play(LaggedStart(FadeIn(triangle_copy),Write(tips1)))
+        self.wait(1.5)
+
+        sector_copy=VGroup(
+            sector.copy(),
+            arc.copy().set_color(BLUE),
+            dot_O.copy().set_color(BLUE).scale(.8),
+            label_A.copy(),
+            label_B.copy(),
+            label_O.copy().next_to(axes.c2p(0,0),LEFT),  
+            MathTex(r"\theta",font_size=29,stroke_width=1
+                    ).move_to( angle_label.get_center()),
+           
+        ).scale(.7).next_to(tips1,DOWN,buff=.2).shift(LEFT*.1)
+
+        tips2=MathTex(
+            r"S_\text{扇形OAB}=\frac{1}{2}OA^2 \cdot \theta",
+            font_size=30,
+            stroke_width=1,
+            color=YELLOW
+        ).next_to(sector_copy,DOWN,buff=.1)
+
+        self.play(FadeIn(sector_copy),Write(tips2))
+
+
+        self.play(LaggedStartMap(
+            FadeOut,[triangle_copy,tips1,sector_copy,tips2],lag_ratio=.3))
+
+
+        
+        # 转换为数学不等式
+        math_inequality = MathTex(
+            r"\therefore \frac{1}{2}\sin x < \frac{1}{2}x < \frac{1}{2}\tan x",
+            font_size=30,
+            stroke_width=1,
+        ).next_to(inequality_text, DOWN, aligned_edge=LEFT)
+        self.play(Write(math_inequality))
+        self.wait()
+        
+        # 化简后的不等式
+        simplified_inequality = MathTex(
+            r"\therefore \sin x < x < \frac{\sin x}{\cos x}",
+            stroke_width=1,
+            font_size=30
+        ).next_to(math_inequality, DOWN, aligned_edge=LEFT)
+        self.play(Create(simplified_inequality))
+        self.wait(1)
+
+        #======= explain part=======
+        explain_part = Rectangle(
+            width=9,
+            height=5,
+            fill_opacity=.9,
+            color="#1d1c1c",
+            stroke_color=WHITE  
+        )
+        self.play(Create(explain_part))
+        self.wait(1)
+
+        explain_part_group = VGroup()
+        explain_part_group.add(explain_part)
+
+        explain_inequality = VGroup(
+            Text("化简: ", font_size=28,font=font_2,weight=BOLD),
+            MathTex(
+            r"\sin x <x < \tan x",
+            font_size=28,
+            stroke_width=1,
+        )).arrange(RIGHT).move_to(
+            explain_part.get_corner(UL)
+            ).shift(RIGHT*2+DOWN*.5)
+        self.play(Write(explain_inequality))
+        explain_part_group.add(explain_inequality)
+        self.wait(1)
+
+        exp_1=VGroup(
+            Text("如果我们每一项同时乘以", font_size=23,font=font_2,color=YELLOW),
+            MathTex(r"\frac{\cos x}{\sin x}", font_size=23, stroke_width=1),
+            Text("，会得到:", font_size=23,font=font_2,color=YELLOW)
+        ).arrange(RIGHT).next_to(explain_inequality,DOWN,aligned_edge=LEFT)
+        self.play(Write(exp_1))
+        explain_part_group.add(exp_1)
+        self.wait(1)
+
+        exp_2=VGroup(
+            MathTex(
+            r"\sin x \cdot \frac{\cos x}{\ sin x} <  \
+            x \cdot \frac{\cos x}{\sin x}<\
+             \frac{\sin x}{\cos x} \cdot \frac{\cos x}{\sin x} ",
+             font_size=23,stroke_width=1
+            ),
+            MathTex("\\Rightarrow"),
+            MathTex(
+            r"\cos x <x \cdot \frac{\cos x}{\sin x} < 1",
+             font_size=23,stroke_width=1
+            ).set_color(_color_4)
+        ).arrange(RIGHT).next_to(exp_1,DOWN,buff=.2,aligned_edge=LEFT)
+
+
+        self.play(Write(exp_2))
+        explain_part_group.add(exp_2)
+        self.wait()
+
+        emph_rec=self.EmphasizeText(exp_2[2][0][5:13],color=YELLOW,stroke_width=4)
+
+        self.wait(1)
+        explain_part_group.add(emph_rec)
+
+        exp_3=MathTex(
+            r"\neq \frac{\sin x}{x}",
+            font_size=23,stroke_width=1
+        ).next_to(emph_rec,DOWN,buff=.2)
+
+        self.play(Write(exp_3))       
+
+        self.wait()
+        self.play(
+            VGroup(
+                exp_1,
+                exp_2,
+                emph_rec
+            ).animate.shift(DOWN*2.5),FadeOut(exp_3)           
+        
+        )
+
+
+        # 改进的推导动画
+        # 从 sin x < x < sin x / cos x 开始
+        step1 = MathTex(
+            r"\Rightarrow \sin x < x < \frac{\sin x}{\cos x}",
+            font_size=30,
+            stroke_width=1
+            ).next_to(explain_inequality,RIGHT)
+        self.play(Create(step1))
+        explain_part_group.add(step1)
+        self.wait(2)
+
+        # 处理左边部分
+        explain_part_group.add(self.EmphasizeText(explain_inequality[1][0][0:6]))
+        step5 = MathTex(
+            r"\sin x < x  \Rightarrow  \frac{\sin x}{x} < 1",
+            font_size=29,
+            color=_color_4,
+            stroke_width=1
+            ).next_to(explain_inequality,DOWN,aligned_edge=LEFT)
+      
+        self.play(Write(step5))
+        explain_part_group.add(step5)
+        self.wait(1)
+
+        # 右边部分
+        emph_rec2=self.EmphasizeText(step1[0][6:15],color=_color_4)
+        step2 = MathTex(
+            r"\Rightarrow\frac{x}{\sin x} < \frac{1}{\cos x}",
+            font_size=29,
+            stroke_width=1,
+            color=YELLOW
+            ).next_to(emph_rec2,DOWN)
+        self.play(Write( step2))
+        explain_part_group.add(step2,emph_rec2)
+        self.wait(1)
+
+        # 取倒数
+        step4 = MathTex(
+            r"\Rightarrow \frac{\sin x}{x} > \cos x",
+            font_size=29,
+            stroke_width=1,
+            color=YELLOW).next_to(step2,DOWN,aligned_edge=LEFT)
+        self.play(Write(step4))
+        explain_part_group.add(step4)
+        self.wait(1)
+        
+        emp_rec_target=Circumscribe(step5[0][7:15],color=_color_3,stroke_width=4)
+        emp_rec2_target=SurroundingRectangle(step5[0][7:15],color=_color_3,stroke_width=4)
+        
+        emp_rec3_target=Circumscribe(step4[0][1:12],color=_color_3,stroke_width=4)
+        emp_rec4_target=SurroundingRectangle(step4[0][1:12],color=_color_3,stroke_width=4)
+        
+        explain_part_group.add(emp_rec2_target,emp_rec4_target)
+        self.play(LaggedStart(
+            emp_rec_target,
+            Create(emp_rec2_target),
+            emp_rec3_target,
+            Create(emp_rec4_target),
+            lag_ratio=.3))
+
+        self.play(FadeOut(explain_part_group))
+
+
+
+
+
+        # 最终形式
+        final_inequality = MathTex(
+            r"\therefore \cos x < \frac{\sin x}{x} < 1",
+            font_size=30,
+            stroke_width=1
+        ).next_to(simplified_inequality,DOWN,aligned_edge=LEFT)
+        self.play(Create(final_inequality))
+        self.wait(1)
+        
+        # 显示夹逼定理的应用
+        squeeze_text = Text("根据夹逼定理:", 
+                            font_size=23,
+                            font=font_2
+            ).next_to(final_inequality,DOWN,aligned_edge=LEFT)
+        limit_text = MathTex(
+            r"""
+            &\lim_{x \to 0} \cos x = 1, \\ 
+            &\lim_{x \to 0} 1 = 1, \\ 
+            &\text{故} \; \lim_{x \to 0} \frac{\sin x}{x} = 1
+            """,
+            font_size=27,
+            stroke_width=1        
+        ).next_to(squeeze_text, RIGHT,aligned_edge=UP)
+        limit_text[0].set_color(_color_1)
+
+        self.play(Write(squeeze_text))
+        self.play(Write(limit_text))
+        self.wait(2)
+
+        self.play(LaggedStartMap(FadeOut,self.mobjects[10:],lag_ratio=.3))
+        self.add(title_4)
+
+        
+        #============== page-7========================
+        title7 = Text(
+            "第二个重要极限: ", font_size=30,font=font_2, color=BLUE,weight=BOLD
+            ).next_to(title_4, DOWN, buff=.5).shift(LEFT)
+        self.play(Write(title7))
+       
+        self.wait(.5)
+
+        step2 = MathTex(
+            "\\lim_{x \\rightarrow \\infty} (1 + \\frac{1}{x})^x = e \\text{ 或 }",
+            r"\lim_{x \to 0}(1+x)^{\frac{1}{x}}=e",
+            font_size=30,
+            stroke_width=1,
+            color=_color_4,
+        ).next_to(title7, RIGHT)
+        self.play(Write(step2))
+        
+        self.wait(1.5)
+
+        title8 = Text(
+            "第二个重要极限的证明", font_size=28,font=font_2,color=_color_10,weight=BOLD
+            ).next_to(title_4,RIGHT)
+        
+        self.play(LaggedStart(
+            ReplacementTransform(title7,title8),            
+            step2.animate.next_to(title8,RIGHT,buff=.02).scale(0.8),            
+            lag_ratio=.3
+        ))
+        self.play(step2.animate.shift(LEFT*.3),run_func=linear)
+    
+        self.wait(.7)
+        
+        # 证明思路概述
+        proof_idea = Text("证明思路：使用单调有界原理", font_size=30, color=YELLOW)
+        self.play(Write(proof_idea))
+        self.wait(2)
+        self.play(FadeOut(proof_idea))
+
+        
+        
+
+
+        
 
 
 
         
-        
+
 
 
 
