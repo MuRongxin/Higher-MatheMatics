@@ -3398,11 +3398,13 @@ class GeneralLimitMethod(Scene):
 
         self.wait(1.5)
 
-
+        self.play(Indicate(know_1))
         k1_rec1=self.EmphasizeText(know_1[0][9:10],color=_color_4)
         k1_rec2=self.EmphasizeText(know_1[0][11:12],color=_color_4)
 
-        q1_rec1=self.EmphasizeText(exam_ques1[0][19:22],color=YELLOW)
+        
+        q1_rec1=self.EmphasizeText(exam_ques1[0][3:6],color=YELLOW)
+        q1_rec2=self.EmphasizeText(exam_ques1[0][19:22],color=YELLOW)
        
        
         
@@ -3415,15 +3417,503 @@ class GeneralLimitMethod(Scene):
         ).next_to(exam_ques1, DOWN).align_to(exam_ques1, LEFT)
 
         self.play(Write(step1_math[0]))
+        self.wait()
+        step1_math[1][7:10].set_color(YELLOW)
+        step1_math[2].set_color(YELLOW)
+        self.play(Write(step1_math[1]))
+
+        self.play(Indicate(step1_math[1][7:10]),Indicate(step1_math[1][3:6]))
+
+        self.wait()
+        self.play(Write(step1_math[2]))
+        self.wait(.7)
+
+        q1_rec3=self.EmphasizeText(step1_math[1],color=_color_5)
+        self.wait()
+        self.play(Uncreate(q1_rec3))
+
+        step2_math = MathTex(
+            r"= ",
+            r"\lim_{x\to \infty} \frac{\sin\frac{2}{x}}{\frac{2}{x}} \cdot ",
+            r" \lim_{x\to \infty} \frac{3x^2+5}{5x+3} \cdot ",           
+            r"\frac{2}{x}",
+            font_size=30,
+            stroke_width=1,
+        ).next_to(step1_math, RIGHT)
+
+        self.play(Write(step2_math),Uncreate(q1_rec1),Uncreate(q1_rec2))
+
+        step2_math_line=DashedLine(
+            step2_math[1].get_left(),
+            step2_math[1].get_right(),
+            color=YELLOW,
+            stroke_width=4,
+        ).shift(DOWN*step2_math.height/2)
+        self.play(Create(step2_math_line))
+
+        self.wait(.5)
+
+        step3_math=MathTex(
+            r"= \lim_{x\to\infty}\frac{3x^2+5}{5x+3}\cdot\frac{2}{x}",
+            font_size=30,
+            stroke_width=1,
+        ).next_to(step1_math,DOWN,aligned_edge=LEFT)
+
+        self.play(Write(step3_math),Uncreate(step2_math_line))
+
+        step4_math=MathTex(
+            r"=\lim_{x\to\infty}\frac{6x^2+10}{5x^2+3x}",
+            font_size=30,
+            stroke_width=1,
+        ).next_to(step3_math,DOWN,aligned_edge=LEFT)
+
+        self.play(Write(step4_math))
+
+        self.wait(.5)
+
+        step5_math=MathTex(
+            r"=\lim_{x\to\infty}\frac{6+\frac{10}{x^2}}{5+\frac{3}{x}}",
+            font_size=30,
+            stroke_width=1,
+        ).next_to(step4_math,DOWN,aligned_edge=LEFT)
+
+        self.play(Write(step5_math))
+
+        self.wait(.5)
+
+        step5_recs=self.EmphasizeTexts([step5_math[0][9:13],step5_math[0][17:20]],stroke_width=3)
+
+        ans = MathTex(
+            r"=\frac{6}{5}",
+            font_size=30,
+            stroke_width=1,
+        ).next_to(step5_math,DOWN,aligned_edge=LEFT)
+
+        self.play(Write(ans),Uncreate(k1_rec1),Uncreate(k1_rec2),Uncreate(step5_recs))
+
+        self.wait(2)
+
+        self.play(           
+            FadeOut(exam_ques1),
+            FadeOut(step1_math),
+            FadeOut(step2_math),FadeOut(step3_math),
+            FadeOut(step4_math),FadeOut(step5_math),FadeOut(ans)) 
+        
+
+        #=============page-8==========================
+        exam_ques2=MathTex(    
+            r"\lim_{x \to 0} \frac{\sin 3x \cdot \tan 3x}{x^2}",
+            font_size=33,
+            stroke_width=1,           
+        ).next_to(title_4, DOWN).shift(LEFT*1.3)
+
+        self.play(Write(exam_ques2))
+        self.wait()
+
+        q2_step1 = MathTex(
+            r"=\lim_{x \to 0}\frac{\sin 3x}{x} \cdot \frac{\tan 3x}{x}",
+            font_size=30,
+            stroke_width=1,
+        ).next_to(exam_ques2, DOWN).align_to(exam_ques2, LEFT)
+
+        self.play(Write(q2_step1))
+        self.wait(.7)
+
+        q2_step2 = MathTex(
+            r"=\lim_{x \to 0}\frac{\sin 3x}{x} \cdot ",
+            r"\lim_{x \to 0} \frac{\tan 3x}{x}",
+            font_size=30,
+            stroke_width=1,
+        ).next_to(q2_step1, DOWN,aligned_edge=LEFT)
+
+        self.play(Write(q2_step2))
+        self.wait(.7)
+
+        q2_rec1=self.EmphasizeTexts([q2_step2[0][10:12],q2_step2[0][13:14]],buff=.1)
+        q2_rec2=self.EmphasizeTexts([q2_step2[1][9:11],q2_step2[1][12:13]],buff=.1,color=YELLOW)
+
+        self.wait(.7)
+        
+        q2_step3 = MathTex(
+            r"=\lim_{x \to 0}\frac{\sin 3x}{3x} \cdot 3 \cdot ",
+            r"\lim_{x \to 0} \frac{\sin 3x}{\cos3x \cdot 3x}\cdot 3",
+            font_size=30,
+            stroke_width=1,
+        ).next_to(q2_step2, DOWN,aligned_edge=LEFT)
+
+        self.play(Write(q2_step3))
+        self.play(Indicate(q2_step3[0][-2]),Indicate(q2_step3[0][-5:-3]),
+                  Indicate(q2_step3[1][-1]),Indicate(q2_step3[1][-4:-2]))
+        
+        self.wait(.7)
+        
+        q2tip1=Text("1",color=RED,font_size=20,weight=BOLD)
+        
+        q2_rec3=self.EmphasizeText(q2_step3[0][1:13])
+
+        q2tip1.next_to(q2_rec3,DOWN)
+
+        self.wait(.7)
+        self.play(Write(q2tip1))
+
+
+        q2_rec4=self.EmphasizeText(q2_step3[1][0:-2],color=YELLOW_D)
+
+        q2_step5 = MathTex(
+            r"= \lim_{x \to 0} \frac{1}{\cos 3x} \cdot",
+            r" \frac{\sin 3x}{3x} \cdot 3",
+            font_size=30,
+            stroke_width=1,
+        ).next_to(q2_rec4, DOWN,aligned_edge=LEFT)
+
+        self.play(Write(q2_step5))
+
+        self.wait(.7)
+
+        q2_rec5=self.EmphasizeText(q2_step5[0][9:14],color=YELLOW)
+        q2_rec6=SurroundingRectangle(q2_step5[0][1:14],color=YELLOW)
+        
+
+        self.play(Transform(q2_rec5,q2_rec6),Write(q2tip1))
+        q2tip2=q2tip1.copy().next_to(q2_rec6,DOWN)
+
+        self.wait(.7)
+
+        self.play(Create(q2tip2))
+
+        q2_rec7=self.EmphasizeText(q2_step5[1][0:-2],color=YELLOW)
+        self.wait(.7)
+
+        q2tip3=q2tip1.copy().next_to(q2_rec7,DOWN)
+        self.play(Write(q2tip3))
+        self.wait()
+
+        self.play(FadeOut(q2tip2,q2tip3,q2_step5),Uncreate(q2_rec5),
+                  Uncreate(q2_rec6),Uncreate(q2_rec7))
+
+        q2tip4=q2tip1.copy().next_to(q2_rec4,DOWN)
+        self.play(Write(q2tip4))
+
+        self.wait(.9)
+        self.play(Uncreate(q2tip4),Uncreate(q2tip1),
+                  Uncreate(q2_rec3),Uncreate(q2_rec4))
+
+        self.wait(.7)
+        
+        q2_step4 = MathTex(
+            r"= 9",
+            font_size=30,
+            stroke_width=1,
+        ).next_to(q2_step3, DOWN,aligned_edge=LEFT)
+
+        self.play(Write(q2_step4),Uncreate(q2_rec1),Uncreate(q2_rec2))
+        self.wait(.7)
+
+        self.play(           
+            FadeOut(exam_ques2),
+            FadeOut(q2_step1),FadeOut(q2_step2),FadeOut(q2_step3),
+            FadeOut(q2_step4))
+        
+        self.remove(q2_rec5,q2_rec6,q2_rec7,q2tip1,q2tip2,q2tip3,q2tip4,
+                    q2_rec1,q2_rec2,q2_rec3,q2_rec4)
+
+
+
+
+        #=============page-9==========================
+        temppos1=know_1.get_center()
+        temppos2=know_2.get_center()
+        know_2.set_color(BLUE)
+        self.play(
+            know_1.animate.move_to(temppos2).shift(RIGHT*know_1.width),
+            know_2.animate.move_to(temppos1).shift(RIGHT*know_2.width/3)
+        )
+
+        k2_rec1=self.EmphasizeTexts([know_2[0][3:6],know_2[0][9:12],
+                                     know_2[0][13]],buff=0.1,color=RED)
+        self.wait(1)
+
+        k2_line=Line(know_2[1].get_corner(DL),know_2[1].get_corner(DR),stroke_width=3,color=RED)
+
+        self.play(Create(k2_line))
+
+        exam_3=MathTex(   
+            r"\text{例1: }" ,
+            r"\lim_{x\to 0}(1+x)^{\frac{2}{x}}",
+            font_size=33,
+            stroke_width=1,           
+        ).next_to(title_4, DOWN).shift(LEFT*1.3)
+
+        self.play(Write(exam_3))
+        self.wait(.7)
+
+        q3_step1 = MathTex(
+            r"=\lim_{x \to 0}[(1+x)^{\frac{1}{x}}]^2",
+            font_size=30,
+            stroke_width=1,
+        ).next_to(exam_3[1], DOWN,aligned_edge=LEFT)
+
+        self.play(Write(q3_step1))
+        self.wait(.7)
+
+        q3_step2 = MathTex(
+            r"=[\lim_{x \to 0}(1+x)^{\frac{1}{x}}]^2",
+            font_size=30,
+            stroke_width=1,
+        ).next_to(q3_step1, DOWN,aligned_edge=LEFT)
+
+        self.play(Write(q3_step2))
+        self.wait(.9)
+
+        self.play(Indicate(q3_step2[0][1:-2]),
+                  Indicate(know_2[1]))
+        
+        q3_step3 = MathTex(
+            r"=e^2",
+            font_size=30,
+            stroke_width=1,
+        ).next_to(q3_step2, DOWN,aligned_edge=LEFT)
+
+        self.play(Write(q3_step3))
+        self.wait()
+
+        exam_4=MathTex(
+            r"\text{例2: }" ,
+            r"\lim_{x\to\infty}\left(1+\frac{3}{x}\right)^{2}",
+            font_size=30,
+            stroke_width=1,
+        ).next_to(know_2[1], DOWN,aligned_edge=LEFT)
+
+        self.play(Write(exam_4),Uncreate(k2_rec1),Uncreate(k2_line))
+
+        self.wait(.9)
+
+        self.play(Indicate(know_2[0][9:12],scale_factor=1.3),run_time=2)
+  
+        self.wait(.7)
+
+        q4_step1 = MathTex(
+            r"=\lim_{x \to \infty}\
+                \left[\left(1+\frac{1}{\frac{x}{3}}\right)^x\right]^{2}",
+            font_size=30,
+            stroke_width=1,
+        ).next_to(exam_4[1], DOWN,aligned_edge=LEFT)
+        
+        self.play(Write(q4_step1))
+        q4_step1[0][11:16].set_color(RED)
+        self.wait(.9)
+       
+        self.play(Indicate(q4_step1[0][11:16],scale_factor=1.3),
+                  Indicate(q4_step1[0][17],scale_factor=1.3),run_time=2)
+
+        q4_step2 = MathTex(
+            r"=\lim_{x \to \infty}\
+               \left[ \left(1+\frac{1}{\frac{x}{3}}\right)",
+            r"^{\frac{x}{3} ",
+            r"\cdot 3}",
+            r"\right]^{2}",
+            font_size=30,
+            stroke_width=1,
+        ).next_to(q4_step1, DOWN,aligned_edge=LEFT)  
+
+        q4_step2[1].set_color(RED)
+
+        self.play(Write(q4_step2[0]))
+
+
+
+        q4_rec3=self.EmphasizeText(q4_step2[0][11:16],stroke_width=3)
+
+
+
+        self.play(Write(q4_step2[1]),Uncreate(q4_rec3))
+        self.wait(.7)
+
+        self.play(Indicate(q4_step1[0][17]),)
+
+        q4_step2[2].set_color(RED)
+        self.play(Write(q4_step2[2]))
+
+        self.wait(.7)
+
+        self.play(Write(q4_step2[3]))
+
+        self.wait(.7)
+
+        q4_step3 = MathTex(
+            r"=\lim_{x \to \infty}\
+               \left[ \left(1+\frac{1}{\frac{x}{3}}\right)",
+            r"^{\frac{x}{3} ",
+            r"\cdot 3}",
+            r"\right]^" ,
+            r"{2",
+            r"6}",
+            font_size=30,
+            stroke_width=1,
+        ).next_to(q4_step2,DOWN,aligned_edge=LEFT)
         
         
+       
+        self.play(Write(q4_step3[:-1]))
+        q4_step3[-1].move_to(q4_step3[-2])
 
+        self.play(Succession(
+            q4_step3[-4:-3].animate.move_to(q4_step3[-2].get_center()),
+            FadeOut(q4_step3[-4:-3]),
+            ),
+            ReplacementTransform(q4_step3[-2],q4_step3[-1]),
+            q4_step3[0][1:7].animate.shift(RIGHT*0.4),
+            q4_step3[0][7].animate.shift(LEFT*0.8)
+        )
+        self.remove(q4_step3[-4:-3])
+        q4_step3[-4:-3].to_edge(RIGHT,buff=-1)
+
+        q4line=Line(q4_step3[0].get_corner(DL),q4_step3[0].get_corner(DR),
+                    stroke_width=3,color=RED).shift(RIGHT*0.4)
+        self.play(Create(q4line))
+
+        q4_step4 = MathTex(
+            r"=e^6",
+            font_size=30,
+            stroke_width=1,
+        ).next_to(q4_step3,DOWN,aligned_edge=LEFT)
+
+        self.wait(.9)
+        self.play(Write(q4_step4),Uncreate(q4line))
+
+
+        self.wait(1.5)
+
+        exam_5=MathTex(
+            r"\text{例3: }" ,
+            r"\lim_{x\to 0}(1-2x)^{\frac{1}{\sin x}}",
+            font_size=30,
+            stroke_width=1,
+        ).next_to(exam_3, DOWN,buff=2.5,aligned_edge=LEFT)
+
+        self.play(Write(exam_5))
+        self.wait(.9)
+
+        q5_step1=MathTex(
+            r"\text{当 } x\to 0 \text{ 时: }",
+            r"&\text{底数 }(1-2x) \to 1 \\",
+            r"&\text{指数 } \frac{1}{\sin x} \to \infty",
+            font_size=28,
+            color=YELLOW,
+            stroke_width=1,
+        ).next_to(exam_5[1], DOWN,aligned_edge=LEFT)
+
+        self.play(Write(q5_step1))
+        self.wait()
+
+        self.play(Indicate(know_2[0][:-1],scale_factor=1.3),
+                  run_time=2)
+        
+        self.play(FadeOut(q5_step1))
+
+        q5_step2=MathTex(
+            r"=\lim_{x\to 0} \left[\left(1",
+            r"+(-2x)\right)",
+            r"^{\frac{1}{-2x}}",
+            r"\right]",
+            r"^{\frac{-2x}{\sin x}}",
+            font_size=30,
+            stroke_width=1,
+        ).next_to(exam_5[1], DOWN,aligned_edge=LEFT)
+
+        q5_step3=MathTex(
+            r"=",
+            r"e",
+            r"^{-2}",
+            font_size=30,
+            stroke_width=1,
+        ).next_to(q5_step2, DOWN,aligned_edge=LEFT)
+
+       
+        self.wait(.7)
+
+        self.play(Write(q5_step2[0]))
+
+        self.wait(.7)
+
+        q5_step2[1][0:6].set_color(RED)
+        self.play(Write(q5_step2[1]))
+
+        self.wait(.7)
+
+        q5_step2[2].set_color(RED)
+        self.play(Write(q5_step2[2]),Write(q5_step2[3]))
+
+        self.wait(.7)
+        
+        self.play(Indicate(exam_5[1][-6:],scale_factor=1.4))
+        q5_step2[4].set_color(RED)
+        self.play(Write(q5_step2[-1]))
+
+        self.wait(.7)
+
+        self.play(q5_step2[0][1:7].animate.shift(RIGHT*.2),
+                  q5_step2[0][7].animate.shift(LEFT*.6))
+        
+        q5_line1=Line(q5_step2[0][7].get_bottom(),q5_step2[3].get_corner(DL),
+                    stroke_width=3,color=YELLOW)
+        self.play(Create(q5_line1))
+        q5_step3temp=q5_step3[1].copy()
+        self.play(Write(q5_step3temp),q5_step3temp.animate.next_to(q5_line1,DOWN))
+
+        self.wait(.8)
+
+        q5_stepTemp=q5_step2[0][1:7].copy()
+        self.play(q5_step2[4].animate.shift(RIGHT*.5))
+        self.play(
+            FadeIn(q5_stepTemp.next_to(
+                q5_step2[4],LEFT,buff=0).scale(.7).set_color(RED)))
+        
+        q5_stepTemp2=MathTex(
+            r"= \lim_{x\to 0} \frac{x}{\sin x} \cdot -2",
+            r"\lim_{x\to 0} \frac{\sin x}{x}=1",
+            r"=-2",
+            font_size=17,
+            stroke_width=1,
+        ).next_to(q5_step2[4],RIGHT,buff=0.1)
+
+        self.wait(.7)
+        self.play(Write(q5_stepTemp2[0]))
+
+        self.wait(.7)
+
+        q5_stepTemp2[1].set_color(YELLOW).next_to(q5_stepTemp2[0],DOWN,buff=.1)
+        self.play(Write(q5_stepTemp2[1]))
+        q5_stepTemp2[2].next_to(q5_stepTemp2[0],RIGHT,buff=.1)
+
+        self.play(Write(q5_stepTemp2[2]))
+        self.wait(.7)
+
+        self.play(Write(q5_step3),Uncreate(q5_line1),FadeOut(q5_step3temp))
+
+        self.wait(1.5)
+
+
+
+
+        
+        
+        
+
+           
 
         
 
 
 
-        
+
+
+
+
+
+
+
+
 
 
 
@@ -3464,3 +3954,17 @@ class GeneralLimitMethod(Scene):
         self.play(LaggedStart(rec_target,Create(rec2_target),lag_ratio=.5))
         return rec2_target
 
+    def EmphasizeTexts(self,targets,color:str=YELLOW,stroke_width=4,buff=0):
+        animes=[]
+        recs=VGroup()
+        for target in targets:        
+            rec_target=Circumscribe(target,color=color,stroke_width=stroke_width,buff=buff)
+            animes.append(rec_target)
+            rec2_target=SurroundingRectangle(target,color=color,
+                                             stroke_width=stroke_width,
+                                             buff=buff)
+            animes.append(Create(rec2_target))
+            recs.add(rec2_target)
+        
+        self.play(LaggedStart(*animes,lag_ratio=.3))
+        return recs
