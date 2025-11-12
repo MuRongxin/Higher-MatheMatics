@@ -3968,3 +3968,316 @@ class GeneralLimitMethod(Scene):
         
         self.play(LaggedStart(*animes,lag_ratio=.3))
         return recs
+
+
+
+
+class IndefiniteForm(Scene):
+    def construct(self):
+        self.wait(1)
+
+        self.play(self.AddTitle("未定型"))
+
+        # 统一样式
+        kw = {
+            "font_size": 33,
+            "stroke_width": 1,
+        }
+
+        # 题目 1
+        q1 = MathTex(r"\lim_{x\to 2}(x^2+3)=", **kw)
+        a1 = MathTex(r"2^2+3=7", **kw)
+        # 题目 2
+        q2 = MathTex(r"\lim_{x\to 1}\frac{x-1}{x+1}=", **kw)
+        a2 = MathTex(r"\frac{0}{2}=0", **kw)
+ 
+        exam_1=VGroup(q1,a1).arrange(RIGHT).shift(UP*.7+LEFT*2)
+        exam_2=VGroup(q2,a2).arrange(RIGHT).next_to(
+            exam_1,RIGHT,aligned_edge=LEFT,buff=3)
+        
+        self.wait(2)
+        self.play(LaggedStartMap(Write,[exam_1[0],exam_2[0]]))
+
+        self.wait(1)
+        self.play(Write(exam_1[1]),Write(exam_2[1]))
+
+        self.wait(.7)
+
+        self.play(LaggedStart(
+            exam_1.animate.to_edge(LEFT,buff=.8).shift(UP*1.1),
+            exam_2.animate.to_edge(LEFT,buff=.8),
+            lag_ratio=.3
+        ))
+
+
+        # 问题二
+        q3 = MathTex(r"\lim_{x\to 2}\frac{x^2-4}{x-2}=?", **kw,color=_color_4)       
+       
+
+        # 问题三
+        q4 = MathTex(r"\lim_{x\to \infty} \frac{e^x}{x^2}=?", **kw,color=_color_4)  
+
+        exam_3=VGroup(q3,q4).arrange(DOWN,aligned_edge=RIGHT,buff=.8).shift(UP)
+
+        self.play(Write(exam_3))
+
+        self.play(FadeOut(q3[0][-1]),FadeOut(q4[0][-1]))
+
+        a3=MathTex(r"\frac{0}{0}", **kw,color=YELLOW).next_to(q3,RIGHT)
+        a4=MathTex(r"\frac{\infty}{\infty}", **kw,color=YELLOW).next_to(q4,RIGHT)
+
+        self.wait(.5)
+        self.play(Write(a3),Write(a4))
+        
+        self.wait(1)
+        
+        rec1=self.EmphasizeTexts([a3,a4],color=RED,buff=.1)
+
+        self.wait()
+        q4tempGroup=VGroup(q4[0][:-1],a4)
+        
+
+        axes1=Axes(
+            x_length=4,
+            y_length=4,
+            x_range=[-1.5,4,2],
+            y_range=[-0.5,7,1],
+            axis_config={
+                "include_numbers": True,
+                "include_tip":False}
+        ).to_edge(DOWN,buff=.1)
+
+
+        graph_l = axes1.plot(lambda x: x + 2, x_range=[-1.5, 1.95, 0.01], color=BLUE)
+
+        graph_r = axes1.plot(lambda x: x + 2, x_range=[2.05, 4, 0.01], color=BLUE)
+
+        hole = Circle(
+            radius=0.05, 
+            stroke_width=2, 
+            color=YELLOW, 
+            fill_opacity=0).move_to(axes1.c2p(2, 4))
+
+      
+        self.play(Succession(
+            LaggedStartMap(Uncreate,rec1),
+            q4tempGroup.animate.next_to(a3,RIGHT,buff=1.8),
+            Create(axes1),
+            Create(graph_l),FadeIn(hole),
+            Create(graph_r)
+        ))
+
+        gra1_line1=DashedLine(axes1.c2p(2,0),axes1.c2p(2,4),color=RED)
+        gra1_line2=DashedLine(axes1.c2p(0,4),axes1.c2p(2,4),color=RED)
+
+        
+
+        self.wait(1)
+        
+        rec2=self.EmphasizeTexts(hole,buff=.1,color=RED)
+        self.play(Uncreate(rec2))
+
+        self.play(Create(gra1_line1),Create(gra1_line2))
+
+        # 1. 坐标轴
+        axes2 = Axes(
+            x_range=[-4, 4, 2],
+            y_range=[-1, 33, 10],
+            x_length=4,
+            y_length=4,
+            axis_config={"include_tip": False},
+            y_axis_config={"scaling": LinearBase()},  # 线性刻度，更直观
+        ).add_coordinates().next_to(axes1,RIGHT)
+
+        # 2. 函数曲线（分段采样，避免 x=0 爆掉）
+        graph = axes2.plot(
+            lambda x: np.exp(x) / (x**2),
+            x_range=[-2, -0.22, 0.01],
+            color=BLUE,
+            stroke_width=2,
+        )
+        graph_right = axes2.plot(
+            lambda x: np.exp(x) / (x**2),
+            x_range=[0.22, 3.8, 0.01],
+            color=BLUE,
+            stroke_width=2,
+        )
+
+
+        # 5. 动画流程
+        self.play(Create(axes2))
+        self.play(Create(graph), Create(graph_right), run_time=2)       
+
+        self.wait(2)
+
+        self.play(
+            FadeOut(graph),
+            FadeOut(graph_right),
+            FadeOut(graph_l,graph_r,hole),
+            FadeOut(axes1),
+            FadeOut(axes2),
+            FadeOut(gra1_line1),
+            FadeOut(gra1_line2),
+        )
+
+        self.wait(1)
+
+        cbrece=Brace(VGroup(q3,a4),DOWN,color=_color_10)
+        self.play(Write(cbrece))
+
+        self.wait(1)
+
+        explain1=Paragraph(
+            "无法通过直接代入或基本运算法则确定其值的极限形式，称为 未定型。",
+            "它不是‘没有意义’，而是‘有待确定’。",
+            font=font_2,
+            font_size=29,
+            line_spacing=1,
+            color=_color_9
+            # alignment=LEFT,
+        ).next_to(cbrece,DOWN)
+        explain1[0][-4:-1].set_color(_color_4)
+        explain1[1][4:8].set_color(_color_3)
+        explain1[1][12:17].set_color(_color_1)
+
+
+        self.play(Write(explain1))
+
+        self.wait(2)
+
+        for item in self.mobjects[2:]:
+            if isinstance(item, Text) and "未定型" in item.text:
+                continue  # 保留这个
+            self.remove(item)
+
+        
+        title = Text(
+             "最常见的七种未定型",
+             font=font_2,
+             font_size=27,
+             weight=BOLD,             
+         ).to_edge(UP,buff=.8).shift(LEFT*3.85)
+        title.add_background_rectangle(color=_color_4)
+
+        self.play(Write(title))
+
+
+        kw_text = {
+            "font_size": 25,
+            "stroke_width": 1,
+            "font": font_2,
+        }
+        kw_math={
+            "font_size": 28,
+            "stroke_width": 1,
+        }
+        
+
+        header = VGroup(
+            Text("类型", **kw_text),
+            Text("描述", **kw_text),
+            Text("简单例子", **kw_text),
+        ).arrange(RIGHT, buff=2).next_to(title, DOWN, buff=0.5).shift(RIGHT*.7)
+        headerCopy=  VGroup(
+            Text("类型", **kw_text),
+            Text("描述", **kw_text),
+            Text("简单例子", **kw_text),
+        ).arrange(RIGHT,buff=1.3).next_to(header,RIGHT,buff=0.5).shift(RIGHT*.7)
+        self.play(Write(header),Write(headerCopy))
+
+        # 数据：类型用 MathTex，中文描述单独 Text，例子 MathTex
+        data = [
+            (r"\frac{0}{0}\ \text{型}",  "分子、分母都趋向于 0",  r"\lim_{x\to 0}\frac{\sin x}{x}"),
+            (r"\frac{\infty}{\infty}\ \text{型}", "分子、分母都趋向于 ∞", r"\lim_{x\to\infty}\frac{2x^2}{x^2}"),
+            (r"0\cdot\infty\ \text{型}", "一个 →0，另一个 →∞", r"\lim_{x\to 0^+}x\ln x"),
+            (r"\infty-\infty\ \text{型}", "两个都 →∞ 的量相减", r"\lim_{x\to 0}\left(\frac{1}{x}-\frac{1}{\sin x}\right)"),
+            (r"1^{\infty}\ \text{型}", "底 →1，指数 →∞", r"\lim_{x\to\infty}\left(1+\frac{1}{x}\right)^x"),
+            (r"0^0\ \text{型}", "底 →0，指数 →0", r"\lim_{x\to 0^+}x^x"),
+            (r"\infty^0\ \text{型}", "底 →∞，指数 →0", r"\lim_{x\to\infty}x^{\frac{1}{x}"),
+        ]
+
+        buffs = [
+            (0.9, .7),   # 类型↔描述，描述↔例子
+            (0.75, .65),
+            (0.5, .65),
+            (0.5, .63),
+            (0.4, .5),
+            (0.5, .5),
+            (0.38, .4),
+        ]
+
+        def make_row(type_tex, desc_txt, ex_tex, buff):
+            type_mob = MathTex(type_tex, **kw_math).set_color(YELLOW)
+            desc_mob = Text(desc_txt, **kw_text)
+            ex_mob   = MathTex(ex_tex, **kw_math)
+            res= VGroup(type_mob, desc_mob, ex_mob)
+            res[1].next_to(res[0],RIGHT,buff=buff[0])
+            res[2].next_to(res[1],RIGHT,buff=buff[1])
+            return res
+
+        # ---------- 左栏 4 行 ----------
+        left_rows = VGroup(*[
+            make_row(*data[i], buffs[i]) for i in range(4)
+        ]).arrange(DOWN, buff=0.35, aligned_edge=LEFT)
+
+        # ---------- 右栏 3 行 ----------
+        right_rows = VGroup(*[
+            make_row(*data[i], buffs[i]) for i in range(4, 7)
+        ]).arrange(DOWN, buff=0.35, aligned_edge=LEFT)
+
+        # ---------- 两栏横向排列 ----------
+        whole_table = VGroup(left_rows, right_rows
+                             ).arrange(RIGHT, buff=.01,aligned_edge=UP)
+        whole_table.next_to(title, DOWN, buff=0.8).to_edge(LEFT, buff=.8).shift(DOWN*.7)
+
+        # ---------- 动画 ----------
+        self.play(LaggedStartMap(Write, whole_table, lag_ratio=0.3))
+        self.wait(2)
+             
+
+
+        
+
+
+    def AddTitle(self,title="temp",font=font_2 ,color:str=_color_1,font_size=35,stroke_width=1.8):
+        title=Text(
+            title,  # 标题文本内容    
+            font=font,  
+            font_size=font_size, 
+            stroke_width=stroke_width     
+            
+        ).to_corner(UL)
+        
+        title_back=Rectangle(
+            width=title.width,
+            height=title.height,
+            fill_opacity=1,
+            color=color
+        ).move_to(title.get_center()+LEFT*3+DOWN*.2)
+
+
+        title_back_pos=title_back.animate.move_to(title.get_center()+DOWN*.2+RIGHT*.2)
+        
+        
+        self.add(title_back)  
+
+        return LaggedStart(
+            Write(title),
+            title_back_pos,
+            lag_ratio=0.3,
+        ) 
+
+    def EmphasizeTexts(self,targets,color:str=YELLOW,stroke_width=4,buff=0):
+        animes=[]
+        recs=VGroup()
+        for target in targets:        
+            rec_target=Circumscribe(target,color=color,stroke_width=stroke_width,buff=buff)
+            animes.append(rec_target)
+            rec2_target=SurroundingRectangle(target,color=color,
+                                             stroke_width=stroke_width,
+                                             buff=buff)
+            animes.append(Create(rec2_target))
+            recs.add(rec2_target)
+        
+        self.play(LaggedStart(*animes,lag_ratio=.3))
+        return recs
