@@ -134,7 +134,7 @@ class TaylorSeries(Scene):
         self.play(Write(step2))
 
         self.wait()
-        self.play(Transform(graph1,graph2))
+        self.play(ReplacementTransform(graph1,graph2))
 
         self.wait(2)
 
@@ -146,15 +146,16 @@ class TaylorSeries(Scene):
             font=font_1, font_size=27
         ).next_to(text1,DOWN,aligned_edge=LEFT).shift(RIGHT*.3)
         step3_2 = MathTex(
-            r"P_2(x) = c_0+c_1 \cdot x+c_2 \cdot x^3 ",
+            r"P_2(x) = c_0+c_1 \cdot x+c_2 \cdot x^2 ",
             font_size=28,
-            stroke_width=1).next_to(step3_1[5],DOWN,aligned_edge=LEFT)
+            stroke_width=1,
+            color=_color_9).next_to(step3_1[5],DOWN,aligned_edge=LEFT)
 
         step3_3 = Text(
             "(a) 值相等：",
             font=font_1,
             font_size=27
-        ).next_to(step3_2,DOWN,aligned_edge=LEFT)
+        ).next_to(step3_2,DOWN,aligned_edge=LEFT).shift(LEFT*.8)
 
         step3_4 = MathTex(
             r" P_2(0) = 0 \Rightarrow c_0 = 0",
@@ -162,17 +163,221 @@ class TaylorSeries(Scene):
             stroke_width=1
         ).next_to(step3_3,RIGHT)
 
+        step3_5=Text(
+            "(b) 一阶导相等：",
+            font=font_1,
+            font_size=27
+        ).next_to(step3_3,DOWN,aligned_edge=LEFT)
+
+        step3_6=MathTex(
+            r" &P_2'(x) = c_1 + 2c_2x \\",
+            r"\Rightarrow  &P_2'(0) = c_1 = 1 = \sin'(0) ",
+            font_size=28,
+            stroke_width=1
+        ).next_to(step3_5,RIGHT,aligned_edge=UP)
+
+        step3_7=Text(
+            "(c) 二阶导相等 (弯曲程度相等)：",
+            font=font_1,
+            font_size=27
+        ).next_to(step3_5,DOWN,aligned_edge=LEFT,buff=.7)
+
+        step3_8=MathTex(
+            r"&(\sin x)''=-\sin x \Rightarrow \sin''(0)=0 \\",
+            r"&P_2''(x) = 2c_2 \Rightarrow  2c_2 = 0 \Rightarrow c_2 = 0",
+            font_size=28,
+            stroke_width=1
+        ).next_to(step3_7[3],DOWN,aligned_edge=LEFT)
+
+        step3_9=MathTex(
+            r"P_2(x) = x",
+            font_size=29,
+            stroke_width=1,
+            color=YELLOW
+        ).next_to(step3_8,DOWN,buff=.5)
+
         step3=VGroup(
-                step3_1,step3_2,step3_4,step3_3
+                step3_1,step3_2,step3_4,step3_3,
+            step3_5,step3_6,step3_7,step3_8,step3_9
         )
 
 
-        graph3=axes1.plot(lambda x:x,x_range=[-1.3,1.3],color=RED)
+        graph3=axes1.plot(lambda x:x,x_range=[-1.5,1.5],color=RED)
 
-        self.play(LaggedStartMap(Write,step3,lag_ratio=.3))
+        self.play(
+            LaggedStart(
+                *[Write(mob) for mob in step3],
+                lag_ratio=.3)
+        )
+
+        self.wait()
+
+        self.play(ReplacementTransform(graph2,graph3))
+        self.wait(2)
+
+        self.play(step3.animate.shift(UP*7),)
+
+        step4_1 = Text(
+            "三阶近似 - 抓住“灵魂”",
+            font=font_1,
+            font_size=27,
+            color=_color_9,
+        ).next_to(text1,DOWN,aligned_edge=LEFT).shift(RIGHT*.3)
+
+        step4_2=MathTex(
+            r"P_3(x) = c_0 + c_1x + c_2x^2 + c_3x^3",
+            font_size=28,
+            stroke_width=1,
+            color=_color_5
+        ).next_to(step4_1[5],DOWN,aligned_edge=LEFT)
+
+        step4_3=Paragraph(
+            " (a) 值相等： c₀ = 0",
+            "(b) 一阶导相等： c₁ = 1",
+            "(c) 二阶导相等：",
+            font=font_1,
+            font_size=27,
+            line_spacing=1,
+            alignment="left"
+        ).next_to(step4_1,DOWN,aligned_edge=LEFT,buff=.7).shift(RIGHT*.4)
+
+        step4_4 = MathTex(
+            r"&(\sin x)''=-\sin x \Rightarrow \sin''(0)=0 \\",
+            r"&P_2''(x) = 2c_2 \Rightarrow  2c_2 = 0 \Rightarrow c_2 = 0",
+            font_size=25,
+            stroke_width=1,
+            color=_color_6
+        ).next_to(step4_3[2][3],DOWN,aligned_edge=LEFT)
+
+
+        step4_5=Text(
+            " (d) 三阶导相等：",
+            font=font_1,
+            font_size=27,
+        ).next_to(step4_3,DOWN,aligned_edge=LEFT,buff=1.3)
+
+        step4_6=MathTex(
+            r"&\sin' x=\cos x \\",
+            r"&\Rightarrow \cos'x=-\sin x \\",
+            r"&\Rightarrow -sin'x=-\cos x \\",
+            font_size=25,
+            stroke_width=1
+        ).next_to(step4_5,DOWN,aligned_edge=LEFT).shift(RIGHT*.3)
+
+        step4_brace=Brace(step4_6,direction=RIGHT,sharpness=3,buff=.1,stroke_width=.1)
+
+        step4_7=MathTex(
+            " (sin x)''' = -cos x",
+            font_size=25,
+            stroke_width=1
+        ).next_to(step4_brace,RIGHT,buff=.1)
+        step4=VGroup(
+            step4_1,step4_2,step4_3,step4_4,step4_5,step4_6,step4_brace,
+            step4_7,
+        )
+
+        step4_8=MathTex(
+            r"&(sin x)''' = -cos x \Rightarrow -\cos(0) = -1 \\",
+            r"&P_3'''(x) = 6c_3 \Rightarrow  6c_3 = -1 \Rightarrow c_3 = -\frac{1}{6}",
+            font_size=25,
+            stroke_width=1
+        ).next_to(step4_5[3],DOWN,aligned_edge=LEFT)
+
+        self.play(LaggedStart(*[Write(mob) for mob in step4],lag_ratio=.3))
+
+        self.wait(2)
+        self.play(ReplacementTransform(VGroup(step4_6,step4_7,step4_brace),step4_8[0]))
+        self.wait()
+        step4_9=MathTex(
+            "P_3'(x)=c_1+c_2x+3c_3x^2",
+            font_size=25,
+            stroke_width=1
+        ).next_to(step4_8[0],DOWN,aligned_edge=LEFT)
+        step4_10=MathTex(
+            r"P_3''(x)=c_2+6c_3 \cdot x",
+            font_size=25,
+            stroke_width=1
+        ).next_to(step4_8[0],DOWN,aligned_edge=LEFT)
+        step4_11=MathTex(
+            r"P_3'''(x)=6c_3",
+            font_size=25,
+            stroke_width=1
+        ).next_to(step4_8[0],DOWN,aligned_edge=LEFT)
+
+        self.play(Write(step4_9))
+        self.wait()
+        self.play(ReplacementTransform(step4_9,step4_10))
+        self.wait()
+        self.play(ReplacementTransform(step4_10,step4_11))
+
+        self.wait()
+        self.play(ReplacementTransform(step4_11,step4_8[1]))
+        self.wait()
+
+        step4_12=MathTex(
+            r"P_3(x) = x - \frac{1}{6}x^3",
+            font_size=27,
+            stroke_width=1,
+            color=YELLOW
+        ).next_to(step4_8,DOWN)
+
+        self.play(Write(step4_12))
+        self.wait(2)
+        step4.add(step4_10,step4_11,step4_12,step4_8)
+        graph4=axes1.plot(
+            lambda x: x-1/6*x**3,
+            x_range=[-3,3],
+            color=YELLOW,
+        )
+
+        self.play(ReplacementTransform(graph3,graph4))
+
+        self.wait()
+
+
+        fun_graph=VGroup(graph1,graph2,graph3,graph4,axes1,
+                         sin_lable,func_sin)
+        res2=VGroup(step2[0],step2[1][2][2]
+                    ).arrange(DOWN,aligned_edge=RIGHT).shift(LEFT*3.8)
+
+        res3=VGroup(
+            step3_1.set_color(_color_9),step3_2.set_color(RED),step3_9
+        ).arrange(DOWN,aligned_edge=LEFT).shift(UP*1.4+RIGHT*1.5)
+        res3[2].next_to(res3[0],RIGHT)
+
+        res4=VGroup(
+            step4_1.copy(),step4_2.copy(),step4_12.copy()
+        ).shift(LEFT*1+DOWN*2)
+        res4[2].next_to(res4[0],RIGHT)
+        res4[1].next_to(res4[0],DOWN,aligned_edge=LEFT)
+        self.play(
+            LaggedStart(
+                FadeOut(fun_graph),
+                step1.animate.to_corner(UL).shift(DOWN*1.2),
+                Write(res2),
+                Write(res3),
+                Transform(step4,res4),
+                lag_ratio=.3
+            )
+        )
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
 
