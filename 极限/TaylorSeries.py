@@ -1,7 +1,10 @@
+from os import write
+from turtle import down, up
 from manim import *
 import numpy as np
 
 from Anime import *
+# from concurrent.interpreters import create
 
 # 配置LaTeX支持中文
 config.tex_template = TexTemplate(
@@ -349,7 +352,7 @@ class TaylorSeries(Scene):
             step4_1.copy(),step4_2.copy(),step4_12.copy()
         ).shift(LEFT*1+DOWN*2)
         res4[2].next_to(res4[0],RIGHT)
-        res4[1].next_to(res4[0],DOWN,aligned_edge=LEFT)
+        res4[1].next_to(res4[0],DOWN,aligned_edge=LEFT).set_color(RED)
         self.play(
             LaggedStart(
                 FadeOut(fun_graph),
@@ -361,6 +364,161 @@ class TaylorSeries(Scene):
             )
         )
 
+        self.wait()
+
+        res5=MathTex(
+            r"\sin x \approx x-\frac{x^3}{6}",
+            stroke_width=2,
+            font_size=33,
+        ).to_edge(DOWN,buff=1).shift(UP*1.3+LEFT*2.7)
+
+        sinx_T=MathTex(
+            r"\sin(x) ",
+            r"&= x - \frac{x^3}{3!} + \frac{x^5}{5!} - \frac{x^7}{7!} + \cdots",
+            font_size=30,
+            color=_color_1,
+            stroke_width=1,            
+        ).to_edge(DOWN,buff=1)
+
+
+
+        self.play(
+            LaggedStart(
+                text1.animate.to_corner(DL).shift(UP*2+RIGHT),
+                Write(res5),
+                lag_ratio=.3
+            )
+        )
+
+        self.wait()
+        self.play(Write(sinx_T))
+        emRec = AnimeTools.EmphasizeTexts(self,[sinx_T],color=_color_4,buff=.2)
+        
+        text2=Text(
+            "（麦克劳林公式）",
+            font=font_1,
+            font_size=27,
+            stroke_width=1
+        ).next_to(emRec,RIGHT,aligned_edge=DOWN)
+
+        self.play(Write(text2))
+        
+        self.wait(2)
+        self.play(Uncreate(emRec),FadeOut(text2))
+        self.play(
+            LaggedStartMap(
+                FadeOut,VGroup(step1,text1,res2,res3,res4,res5,sinx_T,step4),
+                lag_ratio=.3
+            )
+
+        )
+
+        self.wait(2)
+
+        #======================Next page===============
+        subTit1=Text(
+            "带佩亚诺余项的泰勒公式（麦克劳林形式）：",
+            font=font_1,
+            font_size=27,            
+            color=_color_4
+        ).next_to(titlepos,DOWN,aligned_edge=LEFT)
+
+        self.play(Write(subTit1))
+
+        formulas1=MathTex(
+            r"f(x)=f(0)+f'(0)\,x+\frac{f''(0)}{2!}\," ,
+            r"x^{2}+\frac{f^{(3)}(0)}{3!}\,x^{3}+\cdots +" ,
+            r"\frac{f^{(n)}(0)}{n!}\,x^{n}+" ,
+            r"o\!\left(x^{n}\right),\quad x\to 0",
+            font_size=30,
+            stroke_width=1,            
+        ).next_to(subTit1,DOWN,aligned_edge=LEFT)
+
+        formulas_line1=Line(
+            formulas1.get_corner(DL),
+            formulas1.get_corner(DR),
+            color=_color_1
+        ).next_to(formulas1,DOWN)
+
+        self.play(LaggedStart(Write(formulas1),Create(formulas_line1),lag_ratio=.3))
+
+        subTil2=Text(
+            "常见函数的展开式（必须熟记）：",
+            font=font_1,
+            font_size=27,            
+            color=_color_4
+        ).next_to(formulas1,DOWN,aligned_edge=LEFT,buff=.1)
+
+        self.wait()
+        self.play(LaggedStart(Uncreate(formulas_line1),Write(subTil2),lag_ratio=.3))
+
+        formulas2=MathTex(
+            r"&\sin x=x-\frac{x^{3}}{3!}+\frac{x^{5}}{5!}+o(x^5)",
+            r"=(-1)^{n}\frac{x^{2n+1}}{(2n+1)!}+o(x^{2n+1}),\quad x\to 0 \\",
+            r"&\cos x=1-\frac{x^{2}}{2!}+\frac{x^{4}}{4!}+o\!\left(x^{5}\right)",
+            r"=(-1)^{n}\frac{x^{2n}}{(2n)!}+o(x^{2n})\\",
+            r"&\ln(1+x)=x-\frac{x^{2}}{2}+\frac{x^{3}}{3}-\frac{x^{4}}{4}+o\!\left(x^{4}\right)",
+            r"=(-1)^{n-1}\frac{x^{n}}{n}+o(x^{n})\\",
+            r"&\mathrm{e}^{x}=1+x+\frac{x^{2}}{2!}+\frac{x^{3}}{3!}+\frac{x^{4}}{4!}+o\!\left(x^{4}\right)",
+            r"=\frac{x^{n}}{n!}+o\!\left(x^{n}\right)\\",
+            r"&(1+x)^{\alpha}=1+\alpha x+\frac{\alpha(\alpha-1)}{2!}\,x^{2}+o\!\left(x^{2}\right)",
+            font_size=30,
+            stroke_width=1, 
+        ).next_to(subTil2,DOWN,aligned_edge=LEFT)
+
+        formulas2_add=MathTex(
+            r"=\frac{\alpha(\alpha-1) \cdots (\alpha -n+1 )}{n!}\,x^{n}+o\!\left(x^{n}\right)",
+            font_size=30,
+            stroke_width=1, 
+        ).next_to(formulas2[-1],RIGHT)
+
+        self.play(Succession(LaggedStart(
+                    [Write(obj) for obj in formulas2],
+                    lag_ratio=.5), 
+                    Write(formulas2_add))
+        )
+
+        self.wait(2)
+
+        self.play(
+            LaggedStart(
+                FadeOut(subTit1,subTil2,formulas1),
+                FadeOut(formulas2_add),
+                FadeOut(formulas2[-1]),
+                formulas2.animate.next_to(
+                    titlepos,DOWN,aligned_edge=LEFT,buff=.1),             
+                lag_ratio=.4
+            )
+        )
+
+        # self.play(FadeOut(formulas2[-1]))
+
+        formulasLines=VGroup(
+            Line(
+                formulas2[0].get_corner(DL),
+                formulas2[0].get_corner(DR),
+                color=_color_4
+            ).shift(DOWN*.1),
+            Line(
+                formulas2[2].get_corner(DL),
+                formulas2[2].get_corner(DR),
+                color=_color_4
+            ).shift(DOWN*.1),
+            Line(
+                formulas2[4].get_corner(DL),
+                formulas2[4].get_corner(DR),
+                color=_color_4
+            ).shift(DOWN*.1),
+            Line(
+                formulas2[6].get_corner(DL),
+                formulas2[6].get_corner(DR),
+                color=_color_4
+            ).shift(DOWN*.1),
+        )
+
+        self.play(LaggedStartMap(Create,formulasLines))
+
+        self.wait()
 
 
 
@@ -368,15 +526,7 @@ class TaylorSeries(Scene):
 
 
 
-
-
-
-
-
-
-
-
-
+ 
 
 
         
