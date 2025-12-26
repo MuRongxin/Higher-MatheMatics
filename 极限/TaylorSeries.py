@@ -1,3 +1,4 @@
+from email.mime import text
 from os import write
 from turtle import down, up
 from manim import *
@@ -520,9 +521,114 @@ class TaylorSeries(Scene):
 
         self.wait()
 
+        formulas_rec1=SurroundingRectangle(formulas2[0],color=_color_4,buff=.1)
+        formulas_rec2=SurroundingRectangle(formulas2[2],color=_color_4,buff=.1)
+        formulas_rec3=SurroundingRectangle(formulas2[4],color=_color_4,buff=.1)
+        formulas_rec4=SurroundingRectangle(formulas2[6],color=_color_4,buff=.1)
 
+        formulasEmpa1=AnimationGroup(
+            ReplacementTransform(formulasLines[0],formulas_rec1),
+            ReplacementTransform(formulasLines[1],formulas_rec2),
+            ReplacementTransform(formulasLines[2],formulas_rec3),
+            ReplacementTransform(formulasLines[3],formulas_rec4),
+            lag_ratio=.3
+        )
 
+        self.play(formulasEmpa1)
+        self.wait()
 
+        supplementrayTex1=Text(
+            "展开到足以消除不确定性的最低阶数",
+            font=font_1,
+            font_size=27,
+            color=_color_4
+        ).next_to(formulasLines[-1],DOWN,aligned_edge=LEFT)
+
+        self.play(Write(supplementrayTex1))
+
+        supplementrayTex2=VGroup(
+            VGroup(
+                Text("1、分母的阶数决定基准： 若分母为",font=font_1,font_size=25),
+                MathTex("x^k",stroke_width=1,font_size=28),
+                Text("则分子应展开到",font=font_1,font_size=25),
+                MathTex("x^k",stroke_width=1,font_size=28),
+                Text("项。",font=font_1,font_size=25)
+            ).arrange(RIGHT),
+            Text(
+                "2、加减法的抵消： 若表达式中存在相减，可能产生抵消，需要展开到第一个非零项之后的一阶。",
+                font=font_1,font_size=25
+            ),
+            Text(
+                "3、经验法则： 将每个函数展开到相同的阶数，通常比分母的阶数多一阶以确保安全。",
+                font=font_1,font_size=25
+            )
+        ).arrange(DOWN,aligned_edge=LEFT).next_to(supplementrayTex1,DOWN,
+                 aligned_edge=LEFT).shift(RIGHT*.2)
+
+        supplementrayTex2[0].shift(RIGHT*.05)
+        self.play(Write(supplementrayTex2))
+
+        self.play(LaggedStartMap(
+            FadeOut,
+            VGroup(formulas_rec4,formulas_rec3,
+             formulas_rec2,formulas_rec1,
+             supplementrayTex1,supplementrayTex2,formulas2[:-1]),
+            lag_ratio=.3)
+        )
+        
+
+        #==================Next page======================
+
+        exmaple1=MathTex(
+            r"\text{示例： }",
+            r"\lim_{x\to 0}\frac{\mathrm{e}^{x}-1-x}{x^{2}}",
+            stroke_width=2,
+            font_size=30,
+            color=_color_8
+        ).next_to(titlepos,DOWN,aligned_edge=LEFT).shift(RIGHT*.1)
+
+        self.play(Write(exmaple1))
+
+        sloveStep1=MathTex(
+            r"&\cdot \text{ 确认是 } \frac{0}{0} \text{ 型,且适合用泰勒公式。} \\",
+            r"&\cdot \text{ 分母是 } x^2\text{，所以至少展开到2阶 } x^2 \\",
+            r"&\cdot \text{ }\mathrm{e}^{x}=1+x+\frac{x^{2}}{2!}+o(x^{2}) \\",
+            font_size=28,
+            color=_color_6,
+            stroke_width=1
+        ).next_to(exmaple1,DOWN,aligned_edge=LEFT).shift(RIGHT*.1)
+        
+        self.play(Write(sloveStep1))
+
+        self.play(sloveStep1.animate.shift(RIGHT*7),
+                  )
+
+        self.wait()
+
+        slove1=MathTex(
+            r"&=\lim_{x \to 0}\frac{\left(1+x+\frac{x^{2}}{2}+o(x^{2})\right)-1-x}{x^2}\\",
+            r"&=\lim_{x \to 0}\frac{\frac{x^2}{2}+o(x^2)}{x^2} \\",
+            r"&=\lim_{x \to 0}(\frac{\frac{x^2}{2}}{x^2}+",
+            r"\frac{o(x^2)}{x^2})\\",
+            r"&=\lim_{x \to 0}(\frac{1}{2}+\frac{o(x^2)}{x^2})\\",
+            r"&=\frac{1}{2}",
+            font_size=28,
+            stroke_width=2,
+        ).next_to(exmaple1[1],DOWN,aligned_edge=LEFT).shift(RIGHT*.1)
+
+        self.play(LaggedStart(*[Write(slove) for slove in slove1],
+                              lag_ratio=.5))
+
+        self.wait(2)
+        slove1_box=AnimeTools.EmphasizeTexts(self,[slove1[4][12:20]],buff=.1)
+
+        slovel1_sep=MathTex(
+            r"o(1)",
+            font_size=28,
+            stroke_width=2,
+            color=_color_4,
+        ).next_to(slove1_box,RIGHT)
+        self.play(Write(slovel1_sep))
 
 
 
