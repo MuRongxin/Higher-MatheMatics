@@ -435,6 +435,14 @@ class TaylorSeries(Scene):
             stroke_width=1,            
         ).next_to(subTit1,DOWN,aligned_edge=LEFT)
 
+        formulas1_rec=AnimeTools.EmphasizeTexts(self,[formulas1[3][0:5]],buff=.1)
+        f1_rec_tex=MathTex(
+            r"&\text{佩亚诺余项}\\",
+            r"&\text{表示比 } x^n \text{ 高阶的无穷小}",
+            font_size=25,
+            stroke_width=1,
+            color=_color_8
+        ).next_to(formulas1_rec,UP,aligned_edge=LEFT)
         formulas_line1=Line(
             formulas1.get_corner(DL),
             formulas1.get_corner(DR),
@@ -442,6 +450,8 @@ class TaylorSeries(Scene):
         ).next_to(formulas1,DOWN)
 
         self.play(LaggedStart(Write(formulas1),Create(formulas_line1),lag_ratio=.3))
+        self.play(Write(f1_rec_tex))
+        self.wait(2)
 
         subTil2=Text(
             "常见函数的展开式（必须熟记）：",
@@ -483,7 +493,7 @@ class TaylorSeries(Scene):
 
         self.play(
             LaggedStart(
-                FadeOut(subTit1,subTil2,formulas1),
+                FadeOut(formulas1_rec,f1_rec_tex,subTit1,subTil2,formulas1),
                 FadeOut(formulas2_add),
                 FadeOut(formulas2[-1]),
                 formulas2.animate.next_to(
@@ -578,13 +588,24 @@ class TaylorSeries(Scene):
         
 
         #==================Next page======================
-
+        exampleStyle={
+            "font_size": 30,
+            "stroke_width": 2,
+            "color": _color_8
+        }
+        sloveStepStyle={
+            "font_size": 28,
+            "stroke_width": 1.2,
+            "color": _color_6
+        }
+        sloveStyle={
+            "font_size": 28,
+            "stroke_width": 2,
+        }
         exmaple1=MathTex(
             r"\text{示例： }",
             r"\lim_{x\to 0}\frac{\mathrm{e}^{x}-1-x}{x^{2}}",
-            stroke_width=2,
-            font_size=30,
-            color=_color_8
+            **exampleStyle
         ).next_to(titlepos,DOWN,aligned_edge=LEFT).shift(RIGHT*.1)
 
         self.play(Write(exmaple1))
@@ -593,9 +614,7 @@ class TaylorSeries(Scene):
             r"&\cdot \text{ 确认是 } \frac{0}{0} \text{ 型,且适合用泰勒公式。} \\",
             r"&\cdot \text{ 分母是 } x^2\text{，所以至少展开到2阶 } x^2 \\",
             r"&\cdot \text{ }\mathrm{e}^{x}=1+x+\frac{x^{2}}{2!}+o(x^{2}) \\",
-            font_size=28,
-            color=_color_6,
-            stroke_width=1
+            **sloveStepStyle
         ).next_to(exmaple1,DOWN,aligned_edge=LEFT).shift(RIGHT*.1)
         
         self.play(Write(sloveStep1))
@@ -612,9 +631,8 @@ class TaylorSeries(Scene):
             r"\frac{o(x^2)}{x^2})\\",
             r"&=\lim_{x \to 0}(\frac{1}{2}+\frac{o(x^2)}{x^2})\\",
             r"&=\frac{1}{2}",
-            font_size=28,
-            stroke_width=2,
-        ).next_to(exmaple1[1],DOWN,aligned_edge=LEFT).shift(RIGHT*.1)
+            **sloveStyle
+        ).next_to(exmaple1[1],DOWN,aligned_edge=LEFT)
 
         self.play(LaggedStart(*[Write(slove) for slove in slove1],
                               lag_ratio=.5))
@@ -628,12 +646,71 @@ class TaylorSeries(Scene):
             stroke_width=2,
             color=_color_4,
         ).next_to(slove1_box,RIGHT)
+        
+        self.wait(1.5)
         self.play(Write(slovel1_sep))
+        self.wait(1)
+        
+        self.play(FadeOut(slovel1_sep,slove1_box))
+        slovel1_sep.move_to(slove1[4][12:20].get_center())
+        self.play(Transform(slove1[4][12:20],slovel1_sep))
 
+        self.wait(1.5)
 
+        self.play(FadeOut(sloveStep1))
 
+        example2=MathTex(
+            r"\lim_{x\to 0}\frac{\sin x - x}{x^3}",
+            **exampleStyle
+        ).next_to(exmaple1,RIGHT).shift(RIGHT*5)
+
+        self.play(Write(example2))
+
+        sloveStep2=MathTex(
+            r"&\text{分母是 }x^3\text{，所以至少展开到3阶 } x^3 \\",
+            r"&\sin x=x-\frac{x^3}{3!}+o(x^3) \\",
+            **sloveStepStyle
+        ).next_to(example2,DOWN,aligned_edge=LEFT)
+
+        self.play(Write(sloveStep2))
+        self.wait(2.5)
+
+        slove2=MathTex(
+            r"&=\lim_{x \to 0}\frac{\left(x-\frac{x^3}{3!}+o(x^3)\right)-x}{x^3}\\",
+            r"&=\lim_{x \to 0}\frac{-\frac{x^3}{3!}+o(x^3)}{x^3} \\",
+            r"&=\lim_{x \to 0}\left(-\frac{1}{3!}+\frac{o(x^3)}{x^3}\right)\\",
+            r"&=\lim_{x \to 0}\left(-\frac{1}{6}+o(1)\right)\\",
+            r"&=-\frac{1}{6}",
+            **sloveStyle
+        ).next_to(example2,DOWN,aligned_edge=LEFT)
+
+        self.play(ReplacementTransform(sloveStep2,slove2))
+
+        self.wait(2)
+        self.play(FadeOut(exmaple1,slove1,slovel1_sep,example2,slove2))
  
+        #==================Next page======================
 
+        example3=MathTex(
+            r"\lim _{x\to0}\frac{\cos x-e^\frac{-x^2}{2}}{x^4} ",
+            **exampleStyle
+        ).next_to(titlepos,DOWN,aligned_edge=LEFT).shift(RIGHT*.1)
+
+        self.play(Write(example3))
+
+        sloveStep3=MathTex(
+            r"&\cos x = 1 - \frac{x^{2}}{2!} + \frac{x^{4}}{4!} + o(x^{4}) = 1 - \frac{x^{2}}{2} + \frac{x^{4}}{24} + o(x^{4})\\",
+            r"&e^{\frac{-x^{2}}{2}}:\\" 
+            r"&\text{令 }u=-\frac{x^2}{2}\text{，则 }" \
+            r"e^u=1+u+\frac{u^{2}}{2!}+o(u^{2})\\"
+            r"&e^{\frac{-x^{2}}{2}} = 1 + \left(-\frac{x^{2}}{2}\right) + \frac{1}{2!}\left(-\frac{x^{2}}{2}\right)^{2} + o(x^{4})",
+            r"= 1 - \frac{x^{2}}{2} + \frac{x^{4}}{8} + o(x^{4})",
+            **sloveStepStyle,
+        ).next_to(example3,DOWN,aligned_edge=LEFT).shift(RIGHT*.3)
+        
+        sloveStep3_rec=SurroundingRectangle(sloveStep3,color=_color_4)
+
+        self.play(Write(sloveStep3),Create(sloveStep3_rec))
 
         
 
