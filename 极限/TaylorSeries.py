@@ -1,7 +1,9 @@
 from email.mime import text
 from os import write
+from tkinter import CENTER
 from turtle import down, up
 from manim import *
+from networkx import center
 import numpy as np
 
 from Anime import *
@@ -24,6 +26,7 @@ _color_6="#fff4e1"
 _color_7="#ffaaa5"
 _color_8="#b9d7ea"
 _color_9="#7dace4"
+_color_10=ManimColor("#779977")
 
 font_1="得意黑"
 font_2="文悦新青年体 (须授权)"
@@ -700,8 +703,8 @@ class TaylorSeries(Scene):
 
         sloveStep3=MathTex(
             r"&\cos x = 1 - \frac{x^{2}}{2!} + \frac{x^{4}}{4!} + o(x^{4}) = 1 - \frac{x^{2}}{2} + \frac{x^{4}}{24} + o(x^{4})\\",
-            r"&e^{\frac{-x^{2}}{2}}:\\" 
-            r"&\text{令 }u=-\frac{x^2}{2}\text{，则 }" \
+            r"&e^{\frac{-x^{2}}{2}}:\\" ,
+            r"&\text{令 }u=-\frac{x^2}{2}\text{，则 }" ,
             r"e^u=1+u+\frac{u^{2}}{2!}+o(u^{2})\\"
             r"&e^{\frac{-x^{2}}{2}} = 1 + \left(-\frac{x^{2}}{2}\right) + \frac{1}{2!}\left(-\frac{x^{2}}{2}\right)^{2} + o(x^{4})",
             r"= 1 - \frac{x^{2}}{2} + \frac{x^{4}}{8} + o(x^{4})",
@@ -712,5 +715,211 @@ class TaylorSeries(Scene):
 
         self.play(Write(sloveStep3),Create(sloveStep3_rec))
 
+        self.wait(2)
+
+        solveS3_rec2=AnimeTools.EmphasizeTexts(self,[sloveStep3[1]],buff=.1)
+
+        solveS3_arrow=Arrow(solveS3_rec2.get_right(),solveS3_rec2.get_right()+RIGHT,buff=.1,color=_color_4)
+        solve3_tex=Text("复合函数",font=font_1,font_size=22,color=YELLOW
+                        ).next_to(solveS3_arrow,RIGHT,buff=.1)
+        self.play(Succession(Write(solveS3_arrow),Write(solve3_tex)))
+
+        self.wait(2)
+
+        sloveS3_rec3=AnimeTools.EmphasizeTexts(
+            self,[sloveStep3[2][4:6]],color=RED,buff=.1)
         
+        sloveS3_rec4=AnimeTools.EmphasizeTexts(
+            self,[sloveStep3[3][15:17]],color=RED,buff=.1
+        )
+
+        self.wait(2)
+
+        self.play(Succession(
+            Uncreate(sloveS3_rec4),Uncreate(sloveS3_rec3),
+            FadeOut(solve3_tex),Uncreate(solveS3_arrow),
+            Uncreate(solveS3_rec2)
+        ))
+        sloveS3_rec=AnimeTools.EmphasizeTexts(self,[sloveStep3[-2][-4:-1]],buff=.2)
+
+        sloveS3_sup=MathTex(
+            r" o(\frac{1}{4}\,x^4)",
+            r"\;[o(c\cdot g(x))=o(g(x))]",
+            font_size=27,
+            stroke_width=1,
+            color=RED
+        ).next_to(sloveS3_rec,DOWN,aligned_edge=LEFT)
+        sloveS3_sup[1].set_color(BLUE)
+        self.play(Write(sloveS3_sup))
+
+        self.wait(2)
+        
+        self.play(
+            Succession(
+                FadeOut(sloveS3_sup),
+                Uncreate(sloveS3_rec),
+                VGroup(sloveStep3,sloveStep3_rec).animate.scale(.86).shift(DOWN*.5+RIGHT*5),
+                
+            )
+        )
+        temp_line=Line(sloveStep3.get_corner(UL),
+                                sloveStep3.get_corner(DL),
+                                color=_color_4,
+                                stroke_width=8).shift(LEFT*.1)
+        self.play(ReplacementTransform(sloveStep3_rec,
+                           temp_line))
+
+        slove3=MathTex(
+            r"&= \lim_{x\to 0}\frac{\left(1 - \frac{x^{2}}{2} + \frac{x^{4}}{24}\right)" \
+            r" - \left(1 - \frac{x^{2}}{2} + \frac{x^{4}}{8}\right) + o(x^{4})}{x^4}\\",
+            r"&=\lim_{x\to 0}\frac{ \frac{x^{4}}{24} - \frac{x^{4}}{8} + o(x^{4})}{x^4}\\",
+            r"&=\lim_{x\to 0}\frac{ -\frac{x^{4}}{12} + o(x^{4})}{x^{4}}\\",
+            r"&=\lim_{x\to 0}(-\frac{1}{12} + o(1))\\",
+            r"&=-\frac{1}{12}",
+            **sloveStepStyle
+        ).next_to(example3,DOWN,aligned_edge=LEFT)
+        
+        self.play(Write(slove3[0]))
+        self.wait(1.7)
+
+        sloveStep3_rec5=SurroundingRectangle(
+            sloveStep3[0][-5:],
+        )
+        sloveStep3_rec6=SurroundingRectangle(
+            sloveStep3[-1][-5:],buff=0.01
+        )
+
+        self.play(Create(sloveStep3_rec5),Create(sloveStep3_rec6))
+
+        slove3_rec=AnimeTools.EmphasizeTexts(
+            self,[slove3[0][36:41]],buff=.1,color=RED
+        )
+
+        self.wait()
+        
+        self.play(Uncreate(slove3_rec),Uncreate(sloveStep3_rec5),Uncreate(sloveStep3_rec6))
+
+        self.play(Write(slove3[1:]))
+        self.wait(2)
+
+        self.play(
+            FadeOut(sloveStep3,slove3,example3,temp_line)
+        )
+
+        example4=MathTex(
+            r"\lim_{x \to 0} \frac{\ln(1+\sin x)-x}{x^2}",
+            **exampleStyle
+        ).next_to(titlepos,DOWN,aligned_edge=LEFT)
+        self.play(Write(example4))
+        self.wait(1.5)
+
+        slove4_step1_rec=AnimeTools.EmphasizeTexts(
+            self,[example4[0][6:16]],buff=.1
+        )
+        
+        tempSolve=example4[0][6:16].copy()
+        self.wait(.5)
+        self.play(tempSolve.animate.shift(RIGHT*5.5),rate_func=smooth)
+        self.wait()
+
+        slove4_step1=MathTex(
+            r"\text{令 }  u =\sin x,\text{ 则: }",
+            r"\ln(1+u)=u-\frac{u^2}{2}+o(u^2)",
+            color=YELLOW,
+            font_size=27,
+            stroke_width=1
+        ).next_to(tempSolve,DOWN,aligned_edge=LEFT)        
+
+        self.play(Write(slove4_step1))
+
+        slove4_step1_rec2=AnimeTools.EmphasizeTexts(
+            self,[slove4_step1[1][-5:]],color=RED,buff=.1
+        )
+        slove4_step1_tex=Text(
+            "皮亚诺余项：是一个“定性描述”，而不是一个具体算出来的式子",
+            font=font_1,font_size=23,color=_color_10
+        ).next_to(slove4_step1_rec2,DOWN).shift(LEFT*2)
+
+        self.play(Write(slove4_step1_tex))
+
+        self.wait(2)
+
+        self.play(FadeOut(slove4_step1_tex),Uncreate(slove4_step1_rec2))
+
+        slove4_step2=MathTex(
+            r"= \sin x-\frac{\sin^2x}{2}+o(\sin^2x)",
+            color=_color_9,
+            font_size=27,
+            stroke_width=1
+        ).next_to(tempSolve,RIGHT,aligned_edge=ORIGIN)
+
+        self.play(Write(slove4_step2))
+
+        slove4_step3=MathTex(
+            r"\lim_{x \to 0} \frac{\sin x-\frac{\sin^2x}{2}-x+o(\sin^2x)}{x^2}",
+            font_size=27,
+            stroke_width=1,
+            color=_color_10
+        ).next_to(slove4_step1,DOWN,aligned_edge=LEFT)
+        self.wait()
+        self.play(Write(slove4_step3))
+        self.wait(2)
+        
+        slove4_step4=MathTex(
+            r"\sin x = x - \frac{x^{3}}{6} + o(x^{3})",
+            r"\;\;[(-1)^n \frac{x^{2n+1}}{(2n+1)!} + o(x^{2n+1})]",
+            color=YELLOW,
+            font_size=27,
+            stroke_width=1
+        ).next_to(slove4_step1,DOWN,aligned_edge=LEFT)
+
+        self.play(
+            ReplacementTransform(slove4_step3,slove4_step4[0])
+        )
+        slove4_step4[1].set_color(BLUE)
+        self.wait()
+        self.play(Write(slove4_step4[1]))
+        self.wait()
+
+        self.play(slove4_step4.animate.shift(DOWN*4),
+                  slove4_step1.animate.shift(DOWN*4),
+                  lag_ratio=0.3)
+        
+        slove4_step5=MathTex(
+            r"= (x - \frac{x^{3}}{6} + o(x^{3}))-",
+            r"\frac{(x - \frac{x^{3}}{6} + o(x^{3}))^2}{2}+",
+            r"o(x^2)",
+            color=_color_9,
+            font_size=27,
+            stroke_width=1,
+        ).next_to(tempSolve,DOWN,aligned_edge=LEFT)
+
+        self.play(
+            ReplacementTransform(slove4_step2.copy(),slove4_step5)
+        )
+        self.wait(2)
+
+        slove4_step5_rec=AnimeTools.EmphasizeTexts(
+            self,[slove4_step5[1][:15]],buff=.1
+        )
+
+        slove4_step6=MathTex(
+            r"(x - \frac{x^{3}}{6} + o(x^{3}))^2=",
+            r"",
+            color=BLUE,
+            font_size=27,
+            stroke_width=1,
+        ).next_to(slove4_step5,DOWN,aligned_edge=LEFT)
+
+        self.wait(1.3)
+        self.play(ReplacementTransform(slove4_step5[1][:15].copy(),slove4_step6),
+                  Uncreate(slove4_step5_rec))
+
+
+
+
+
+
+
+
 
