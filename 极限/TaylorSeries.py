@@ -899,26 +899,137 @@ class TaylorSeries(Scene):
         )
         self.wait(2)
 
+        temp_line1=Line(
+            slove4_step5[2].get_corner(DR),slove4_step5[2].get_corner(DL),
+            color=YELLOW
+        )
+        temp_line2=Line(
+            slove4_step2[0][-8:].get_corner(DL),slove4_step2[0][-8:].get_corner(DR),
+            color=YELLOW
+        )
+        self.play(Create(temp_line1),Create(temp_line2))
+        self.wait()
+
         slove4_step5_rec=AnimeTools.EmphasizeTexts(
             self,[slove4_step5[1][:15]],buff=.1
         )
 
         slove4_step6=MathTex(
             r"(x - \frac{x^{3}}{6} + o(x^{3}))^2=",
-            r"",
+            r"\underbrace{x^2}_{\text{第1项}}",
+            r"\underbrace{-\frac{x^4}{3}}_{\text{第2项}} +",
+            r"\underbrace{\frac{x^6}{36}}_{\text{第3项}} +" ,
+            r"\underbrace{2x \cdot o(x^3)}_{\text{第4项}} + ",
+            r"\underbrace{o(x^3) \cdot o(x^3)}_{\text{第5项}}",
             color=BLUE,
             font_size=27,
             stroke_width=1,
-        ).next_to(slove4_step5,DOWN,aligned_edge=LEFT)
+        ).next_to(slove4_step5,DOWN,aligned_edge=LEFT).shift(LEFT*1.5)
+        slove4_step6_copy=MathTex(
+            r"(x - \frac{x^{3}}{6} + o(x^{3}))^2=",
+            r"x^2",
+            r"-\frac{x^4}{3}} +",
+            r"\frac{x^6}{36}} +" ,
+            r"2x \cdot o(x^3)} + ",
+            r"o(x^3) \cdot o(x^3)",
+            color=BLUE,
+            font_size=27,
+            stroke_width=1,
+        ).next_to(slove4_step5,DOWN,aligned_edge=LEFT).shift(LEFT*1.5)
 
         self.wait(1.3)
-        self.play(ReplacementTransform(slove4_step5[1][:15].copy(),slove4_step6),
-                  Uncreate(slove4_step5_rec))
+        self.play(ReplacementTransform(slove4_step5[1][:15].copy(),slove4_step6[0]),
+                  Uncreate(slove4_step5_rec),FadeOut(temp_line1,temp_line2))
+        self.wait()
+        self.play(Write(slove4_step6[1:]))
+
+        table_content = [
+            [r"\text{第1项}", "x^2", r"\dfrac{x^2}{x^2}=1", r"\textbf{主项}"],                        # 第1行
+            [r"\text{第2项}", r"-\dfrac{x^4}{3}", r"\dfrac{x^4}{x^2}=x^2\to 0", r"\text{比 } x^2 \text{ 高阶 } \to \text{ 可忽略}"], # 第2行
+            [r"\text{第3项}", r"\dfrac{x^6}{36}", r"\dfrac{x^6}{x^2}=x^4\to 0", r"\text{比 } x^2 \text{ 高阶 } \to \text{ 可忽略}"], # 第3行
+            [r"\text{第4项}", r"2x\cdot o(x^3)", r"\dfrac{o(x^4)}{x^2}\to 0", r"\text{比 } x^2 \text{ 高阶 } \to \text{ 可忽略}"],   # 第4行
+            [r"\text{第5项}", r"o(x^3)\cdot o(x^3)", r"\dfrac{o(x^6)}{x^2}\to 0", r"\text{比 } x^2 \text{ 高阶 } \to \text{ 可忽略}"], # 第5行
+        ]
+
+        rows = VGroup()
+        slove4_group=VGroup()
 
 
+        # 2. 逐行构建表格
+        for i, line_data in enumerate(table_content):
+            # 将当前行的每一列文字转为 MathTex
+            row_cells = [MathTex(text,stroke_width=1) for text in line_data]
+            
+            # 将当前行的所有列水平排列 (使用 arrange 和 aligned_edge=LEFT 确保左对齐)
+            row = VGroup(*row_cells).arrange(RIGHT, buff=1)
+            
+
+            # 将构建好的一行加入总的 VGroup
+            rows.add(row)
+
+        # 3. 将所有行垂直排列 (aligned_edge=LEFT 确保每一列都是左对齐的)
+        rows.arrange(DOWN, buff=.2, aligned_edge=LEFT)
+
+        # 4. 整体缩放，适应屏幕
+        rows.scale(0.5).next_to(slove4_step6,DOWN,aligned_edge=LEFT)
+     
+        # 5. 添加到场景
+        self.play(LaggedStart(
+            *[Write(row) for row in rows],lag_ratio=.5),
+            FadeOut(slove4_step1,slove4_step4))
+        self.wait(2)
+
+        tabeBrace=Brace(rows[1:], direction=RIGHT)
+
+        slove4_step7=MathTex(
+            r"o(x^2)",
+            stroke_width=2,
+            font_size=30,
+            color=YELLOW
+        ).next_to(tabeBrace,RIGHT)
+
+        self.play(Succession(Create(tabeBrace),Write(slove4_step7)))
+
+        slove4_group.add(rows,tabeBrace,slove4_step7)
+
+        self.wait(2)
+        self.play(slove4_group.animate.shift(LEFT*5.5).scale(.8))
+
+        slove4_step8=MathTex(
+            r"= x^2 + o(x^2)",            
+            color=BLUE,
+            font_size=27,
+            stroke_width=1,
+        ).next_to(slove4_step6[0][-1],DOWN,buff=.5,aligned_edge=LEFT)
+
+        self.play(ReplacementTransform(slove4_step6,slove4_step6_copy),
+                  Write(slove4_step8))
+
+        self.wait(1)
+
+        self.play(FadeOut(slove4_group,slove4_step6_copy,slove4_step8),
+                  slove4_step5.animate.set_color(_color_8))
+
+        slove4_step=MathTex(
+            r"&=\left(x - \frac{x^{3}}{6} + o(x^{3})\right) - " \
+            r"\frac{1}{2}\bigl( x^2 + o(x^2)\bigr) + o(x^{2})\\",
+            r"&= x - \frac{x^{2}}{2} + o(x^{2})",
+            color=_color_8,
+            font_size=27,
+            stroke_width=1,        
+        ).next_to(slove4_step5,DOWN,aligned_edge=LEFT)
+
+        self.play(Write(slove4_step),FadeOut(slove4_step2))
+        self.wait(2)
 
 
+        slove4=MathTex(
+            r"&=\lim_{x\to 0}\frac{x - \frac{x^{2}}{2} + o(x^{2})-x}{x^2}\\",
+            r"&=\lim_{x\to 0}\bigl(-\frac{1}{2}+o(1)\bigr)",
+            **sloveStyle
+        ).next_to(example4,DOWN,aligned_edge=LEFT)
 
+        self.play(Write(slove4))
 
 
 
