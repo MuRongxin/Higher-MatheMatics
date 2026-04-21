@@ -2,6 +2,7 @@ from email.mime import text
 from os import write
 from tkinter import CENTER
 from turtle import down, up
+from av import VideoStream
 from manim import *
 from networkx import center
 import numpy as np
@@ -1025,12 +1026,200 @@ class TaylorSeries(Scene):
 
         slove4=MathTex(
             r"&=\lim_{x\to 0}\frac{x - \frac{x^{2}}{2} + o(x^{2})-x}{x^2}\\",
-            r"&=\lim_{x\to 0}\bigl(-\frac{1}{2}+o(1)\bigr)",
+            r"&=\lim_{x\to 0}\bigl(-\frac{1}{2}+o(1)\bigr)\\",
+            r"& = -\frac{1}{2}",
             **sloveStyle
         ).next_to(example4,DOWN,aligned_edge=LEFT)
 
-        self.play(Write(slove4))
+        self.play(Write(slove4),FadeOut(slove4_step1_rec))
+
+        self.wait(2)
+
+        self.play(FadeOut(tempSolve,slove4_step5,slove4,slove4_step,example4))
+
+        self.wait(1)
+
+
+class TaylorSeries_two(Scene):
+    def construct(self):
+        title , titlepos=AnimeTools.AddTitle(self,title="泰勒公式")
+        self.play(title)
+
+         
 
 
 
 
+
+
+#sk-kimi-kP1PQRPhmsP1zWLjLQHzXqdC3A8ncK0IeebQ4EHL1C5ncyuId2LAWMkaKjfbTVbf
+
+class Ayanokoji(Scene):
+    def construct(self):
+        title , titlepos=AnimeTools.AddTitle(self,title="轻井泽惠的数学学力")
+        self.play(title)
+        
+        title2=Text(
+            "数学 2B   微分法・积分法",
+            font=font_2,
+            font_size=27
+        ).next_to(titlepos,DOWN)
+
+
+        
+        self.play(Write(title2))
+
+        q1=Text(
+            "1. 不定积分",
+            font=font_1,
+            font_size=25,
+            stroke_width=.5
+        ).next_to(title2,DOWN,aligned_edge=LEFT,buff=.5).shift(RIGHT*.3)
+
+        q1_1=MathTex(
+            r"&\textbf{(1)} \; \boldsymbol{\int (2x^2 - 4x + 5) \, dx} \\",
+            r"&\textbf{(2)} \; \boldsymbol{\int (x-2)(x+1) \, dx}",
+            font_size=25,
+            
+        ).next_to(q1,DOWN,aligned_edge=LEFT).shift(RIGHT*.2)
+        
+        q2=Text(
+            "2. 定积分",
+            font=font_1,
+            font_size=25,
+            stroke_width=.5
+        ).next_to(q1,DOWN,aligned_edge=LEFT,buff=1.9)
+
+        q2_1=MathTex(
+            r"&\textbf{计算定积分} \; \boldsymbol{\int_{-1}^{3} |x-1| \, dx} \textbf{ 的值}",
+            font_size=25,
+            
+        ).next_to(q2,DOWN,aligned_edge=LEFT).shift(RIGHT*.2)
+        
+        q3=Text(
+            "3. 积分与图像",
+            font=font_1,
+            font_size=25,
+            stroke_width=.5
+        ).next_to(q2,DOWN,aligned_edge=LEFT,buff=1.3)
+        
+        q3_1=VGroup(
+            Text("请画出函数",font=font_1,font_size=20),
+            MathTex(r"\boldsymbol{y = -x^2 + 6x - 8}",font_size=25),
+            Text("的图像，并求该函数与 x 轴所围成区域的面积。",font=font_1,font_size=20)
+        ).arrange(RIGHT,buff=.1).next_to(q3,DOWN,aligned_edge=LEFT).shift(RIGHT*.2)
+        
+        
+        self.play(LaggedStart(
+            Write(q1),Write(q1_1),
+            Write(q2),Write(q2_1),
+            Write(q3),Write(q3_1),
+            lag_ratio=.4
+        ))
+
+        self.wait(2)
+
+        t2_rec=AnimeTools.EmphasizeTexts(self,[title2[0:4]],buff=.1,color=_color_4)
+        title2_1=Text(
+            "注:「数 2B」是日本高中数学的课程模块，对应国内高中的微积分入门内容",
+            font=font_1,
+            font_size=20,
+            color=ManimColor("#fff200ff")
+        ).next_to(t2_rec,DOWN,aligned_edge=LEFT,buff=.1).shift(RIGHT*1.5)
+
+        self.play(Write(title2_1))
+
+        self.wait(1)
+
+        self.play(
+            Uncreate(t2_rec),FadeOut(title2_1),
+        )
+
+        q1_rec1=AnimeTools.EmphasizeTexts(self,[q1_1[0][3:]],buff=.1,color=_color_4)
+        
+        q1_1_copy=q1_1[0][3:].copy()
+
+        self.play(q1_1_copy.animate.shift(UP*2+RIGHT*5))
+
+        step1_title = Text("步骤1：利用线性性质拆分", font_size=22, color=_color_1)
+        step1_title.next_to(q1_1_copy,DOWN,aligned_edge=LEFT,buff=.3)
+        self.play(FadeIn(step1_title, shift=RIGHT), run_time=0.8)
+        
+        step1_formula = MathTex(
+            r"=\boldsymbol{ \int 2x^2 \, dx - \int 4x \, dx + \int 5 \, dx}",
+            font_size=23
+        )
+        step1_formula.next_to(step1_title, DOWN, buff=0.3, aligned_edge=LEFT)
+        self.play(Write(step1_formula), run_time=1.5)
+        self.wait(0.5)
+    
+        step2_title = Text("步骤2：常数因子提到积分号外", font_size=22, color=_color_1)
+        step2_title.next_to(step1_formula, DOWN, buff=0.4, aligned_edge=LEFT)
+        self.play(FadeIn(step2_title, shift=RIGHT), run_time=0.8)
+        
+        step2_formula = MathTex(
+            r"=\boldsymbol{ 2\int x^2 \, dx - 4\int x \, dx + 5\int 1 \, dx}",
+            font_size=23
+        )
+        step2_formula.next_to(step2_title, DOWN, buff=0.3, aligned_edge=LEFT)
+        self.play(Transform(step1_formula.copy(), step2_formula), run_time=1.5)
+        self.wait(0.5)
+
+        step3_title = Text("步骤3：应用幂函数积分公式", font_size=22, color=_color_1)
+        step3_title.next_to(step2_formula, DOWN, buff=0.4, aligned_edge=LEFT)
+        self.play(FadeIn(step3_title, shift=RIGHT), run_time=0.8)
+        
+        # 公式卡片
+        formula_card = MathTex(
+            r"\boldsymbol{\int x^n dx = \frac{x^{n+1}}{n+1} + C \quad (n \neq -1)}",
+            font_size=20, color=YELLOW
+        )
+        formula_card.next_to(step3_title, DOWN, buff=0.3, aligned_edge=LEFT)
+        box_card = SurroundingRectangle(formula_card, color=_color_5, buff=0.15)
+        
+        self.play(Write(formula_card), Create(box_card), run_time=1.5)
+        self.wait(1.5)
+
+        # 分项计算
+        calc_group = VGroup(
+            MathTex(r"2 \cdot \frac{x^3}{3}", font_size=21, color=GOLD),
+            MathTex(r"- 4 \cdot \frac{x^2}{2}", font_size=21, color=GOLD),
+            MathTex(r" 5 \cdot x", font_size=21, color=GOLD)
+        ).arrange(RIGHT, buff=0.8)
+        
+        
+        step_line1=Line(step2_formula[0][1:7].get_corner(DL),
+                        step2_formula[0][0:7].get_corner(DR),
+                        buff=0
+                        ).set_color(RED)
+        
+        step_line2=Line(step2_formula[0][8:13].get_corner(DL),
+                        step2_formula[0][8:13].get_corner(DR),
+                        buff=0
+                        ).set_color(RED)
+        
+        step_line3=Line(step2_formula[0][14:19].get_corner(DL),
+                        step2_formula[0][14:19].get_corner(DR),
+                        buff=0
+                        ).set_color(RED)
+        
+        calc_group[0].next_to(step_line1,DOWN,buff=.1)
+        calc_group[1].next_to(step_line2,DOWN,buff=.1)
+        calc_group[2].next_to(step_line3,DOWN,buff=.1)
+
+        self.play(
+            Uncreate(box_card),
+            step3_title.animate.shift(DOWN*.5),
+            formula_card.animate.shift(DOWN*.5),
+
+        )
+        self.wait(0.5)
+
+        self.play(Create(step_line1))
+        self.play(Write(calc_group[0]))
+
+        self.play(Create(step_line2))
+        self.play(Write(calc_group[1]))
+
+        self.play(Create(step_line3))
+        self.play(Write(calc_group[2]))
