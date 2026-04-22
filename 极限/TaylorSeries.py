@@ -6,6 +6,7 @@ from av import VideoStream
 from manim import *
 from networkx import center
 import numpy as np
+from scipy.fftpack import shift
 
 from Anime import *
 # from concurrent.interpreters import create
@@ -1162,7 +1163,7 @@ class Ayanokoji(Scene):
             font_size=23
         )
         step2_formula.next_to(step2_title, DOWN, buff=0.3, aligned_edge=LEFT)
-        self.play(Transform(step1_formula.copy(), step2_formula), run_time=1.5)
+        self.play(ReplacementTransform(step1_formula.copy(), step2_formula), run_time=1.5)
         self.wait(0.5)
 
         step3_title = Text("步骤3：应用幂函数积分公式", font_size=22, color=_color_1)
@@ -1223,3 +1224,100 @@ class Ayanokoji(Scene):
 
         self.play(Create(step_line3))
         self.play(Write(calc_group[2]))
+
+        self.wait()
+
+        self.play(
+            Uncreate(step_line1),
+            Uncreate(step_line2),
+            Uncreate(step_line3),           
+            )
+        self.play(
+            step3_title.animate.shift(UP*.5),
+            FadeOut(formula_card,shift=LEFT),
+            calc_group.animate.shift(UP*.3),
+            run_time=.7
+        )
+       
+        # 中间结果
+        mid_result = MathTex(
+            r"= \boldsymbol{\frac{2}{3}x^3 - 2x^2 + 5x + C}",
+            font_size=21, color=WHITE
+        )
+        mid_result.next_to(step3_title, DOWN, buff=0.3, aligned_edge=LEFT)
+        
+        # 从分项变到合并的动画
+        self.play(
+            ReplacementTransform(calc_group, mid_result),
+            run_time=.8
+        )
+        self.wait(0.5)
+        mid_result_copy=mid_result.copy()     
+        self.play(
+            mid_result_copy.animate.next_to(q1_1_copy,RIGHT)
+        )
+        self.wait(1)
+
+        self.play(
+            FadeOut(q1_1_copy,shift=RIGHT),
+            FadeOut(mid_result_copy,shift=RIGHT),
+            FadeOut(mid_result,shift=RIGHT),
+            FadeOut(step1_title,shift=RIGHT),
+            FadeOut(step2_title,shift=RIGHT),
+            FadeOut(step3_title,shift=RIGHT),
+            FadeOut(step1_formula,shift=RIGHT),
+            FadeOut(step2_formula,shift=RIGHT),
+            Uncreate(q1_rec1),
+            run_time=0.8
+        )
+        self.wait(1.5)
+        
+        
+        #===============Q2======================
+
+        q1_rec2=AnimeTools.EmphasizeTexts(self,[q1_1[1][3:]],buff=.1,color=_color_4)
+
+        q1_2_copy=q1_1[1][3:].copy()
+        self.play(q1_2_copy.animate.shift(UP*2.8+RIGHT*4.5))
+        self.wait(0.5)
+
+        expanded = MathTex(
+            r"= \boldsymbol{\int \left(x^2 - x - 2\right) dx}",
+            font_size=23
+        )
+        expanded.next_to(q1_2_copy, DOWN, buff=0.3, aligned_edge=LEFT)
+                        
+        self.play(Write(expanded), run_time=1.5)
+        self.wait(0.5)
+        
+        # ===== 拆分积分 =====
+        split = MathTex(
+            r"=\boldsymbol{ \int x^2 \, dx - \int x \, dx - \int 2 \, dx}",
+            font_size=23
+        )
+        split.next_to(expanded, DOWN, buff=0.3, aligned_edge=LEFT)
+                
+        self.play(Write(split), run_time=1.5)
+        self.wait(0.5)
+        
+        
+        final = MathTex(
+            r"=\boldsymbol{ \frac{1}{3}x^3 - \frac{1}{2}x^2 - 2x + C}",
+            font_size=23, color=WHITE
+        )
+        final.next_to(split, DOWN, buff=0.3, aligned_edge=LEFT)
+        
+        
+        self.play(Write(final), run_time=1.5)
+        
+        self.wait(1)
+
+        self.play(LaggedStart(
+            FadeOut(q1_2_copy,shift=RIGHT),
+            FadeOut(split,shift=RIGHT),
+            FadeOut(final),
+            Uncreate(q1_rec2),lag_ratio=0.3)
+        )
+
+
+        
