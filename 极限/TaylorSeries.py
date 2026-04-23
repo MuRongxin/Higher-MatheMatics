@@ -2,6 +2,7 @@ from email.mime import text
 from os import write
 from tkinter import CENTER
 from turtle import down, up
+from venv import create
 from av import VideoStream
 from manim import *
 from networkx import center
@@ -1314,10 +1315,297 @@ class Ayanokoji(Scene):
 
         self.play(LaggedStart(
             FadeOut(q1_2_copy,shift=RIGHT),
+            FadeOut(expanded,shift=RIGHT),
             FadeOut(split,shift=RIGHT),
             FadeOut(final),
             Uncreate(q1_rec2),lag_ratio=0.3)
         )
 
 
+#=================2r"&\textbf{计算定积分} \; \boldsymbol{\int_{-1}^{3} |x-1| \, dx} \textbf{ 的值}",
+
+        q2_copy=q2_1[0][5:16].copy()
+        q2Line=Line(q2_1[0][5:15].get_corner(DL),
+                    q2_1[0][5:16].get_corner(DR),
+                    color=_color_4,
+                    stroke_width=8
+                    ).shift(DOWN*.1)
+      
+        self.play(Create(q2Line))
+
+        self.play(q2_copy.animate.shift(UP*3.8+RIGHT*4.5))
+        self.wait(0.5)
+
+        axes = Axes(
+            x_range=[-2.5, 4.5, 1],
+            y_range=[-0.5, 3.5, 1],
+            x_length=7,
+            y_length=4.5,
+            axis_config={"include_tip": False, "color": WHITE, "stroke_width": 2},
+        ).scale(.5)
+        axes.next_to(q2_copy,RIGHT,buff=.3)
         
+        x_label = MathTex("x", font_size=24).next_to(axes.x_axis.get_end(), RIGHT, buff=0.1)
+        y_label = MathTex("y", font_size=24).next_to(axes.y_axis.get_end(), UP, buff=0.1)
+        
+        self.play(Create(axes), Write(x_label), Write(y_label), run_time=1.5)
+        
+        # ========== 函数图像（丝滑绘制） ==========
+        graph = axes.plot(
+            lambda x: abs(x-1), 
+            x_range=[-1.5, 3.5], 
+            color=YELLOW, 
+            stroke_width=3
+        )
+        graph_label = MathTex(r"y=|x-1|", font_size=24, color=YELLOW)
+        graph_label.next_to(axes.c2p(3, 2), RIGHT, buff=0.2)
+        
+        self.play(
+            Create(graph, run_time=2.5, rate_func=rate_functions.ease_in_out_sine),
+            FadeIn(graph_label, shift=RIGHT, run_time=0.8)
+        )
+        self.wait(0.3)
+        # ========== 关键点与虚线 ==========
+        dot_vertex = Dot(axes.c2p(1, 0), color=GREEN, radius=0.08)
+        label_vertex = MathTex(r"(1,0)", font_size=22, color=GREEN).next_to(dot_vertex, DOWN, buff=0.15)
+        
+        v_line_m1 = DashedLine(axes.c2p(-1, 0), axes.c2p(-1, 2), color=WHITE, stroke_width=2, dashed_ratio=0.2)
+        v_line_3 = DashedLine(axes.c2p(3, 0), axes.c2p(3, 2), color=WHITE, stroke_width=2, dashed_ratio=0.2)
+        
+        label_m1 = MathTex(r"-1", font_size=22).next_to(axes.c2p(-1, 0), DOWN, buff=0.12)
+        label_1 = MathTex(r"1", font_size=22, color=GREEN).next_to(axes.c2p(1, 0), DOWN, buff=0.12)
+        label_3 = MathTex(r"3", font_size=22).next_to(axes.c2p(3, 0), DOWN, buff=0.12)
+        
+        self.play(
+            FadeIn(dot_vertex, scale=2),           
+            run_time=0.5
+        )
+        self.play(
+            Create(v_line_m1), Create(v_line_3),
+            Write(label_m1), Write(label_1), Write(label_3),
+            run_time=.7
+        )
+        self.wait(0.3)
+
+        # ========== 区域填充（丝滑铺开） ==========
+        area_left = axes.get_area(graph, x_range=[-1, 1], color=BLUE, opacity=0.4)
+        area_right = axes.get_area(graph, x_range=[1, 3], color=RED, opacity=0.4)
+        
+        label_s1 = MathTex(r"S_1", font_size=24, color=BLUE_A).move_to(axes.c2p(-0.3, 0.5))
+        label_s2 = MathTex(r"S_2", font_size=24, color=RED_A).move_to(axes.c2p(2.3, 0.5))
+        
+        self.play(
+            FadeIn(area_left, rate_func=rate_functions.ease_out_expo),
+            FadeIn(label_s1, shift=UP),
+            run_time=.8
+        )
+        self.play(
+            FadeIn(area_right, rate_func=rate_functions.ease_out_expo),
+            FadeIn(label_s2, shift=UP),
+            run_time=.8
+        )
+        self.wait(0.5)
+
+        # ========== 右侧公式推导 ==========
+        # 步骤1：拆分
+        step1 = MathTex(
+            r"= \int_{-1}^{1} (1-x) \, dx + \int_{1}^{3} (x-1) \, dx",
+            font_size=30
+        )
+        step1.to_edge(RIGHT, buff=0.5)
+        step1.align_to(q2_copy, UP).shift(DOWN * 1.7)
+        
+        # 区域表达式标注
+        expr_left = MathTex(r"1-x", font_size=22, color=BLUE).next_to(axes.c2p(-0.3, 1.2), LEFT, buff=0.1)
+        expr_right = MathTex(r"x-1", font_size=22, color=RED).next_to(axes.c2p(2.3, 1.2), RIGHT, buff=0.1)
+        
+        self.play(FadeIn(step1, shift=LEFT, run_time=1))
+        self.play(
+            FadeIn(expr_left, shift=RIGHT),
+            FadeIn(expr_right, shift=LEFT),
+            run_time=0.8
+        )
+        self.wait(0.3)
+
+        # 步骤2：左侧计算
+        step2 = MathTex(
+            r"\int_{-1}^{1} (1-x) \, dx = \Bigl[x-\frac{x^2}{2}\Bigr]_{-1}^{1} = 2",
+            font_size=26, color=BLUE_A
+        )
+        step2.next_to(step1, DOWN, buff=0.8, aligned_edge=LEFT)
+        
+        self.play(Write(step2), run_time=1.5)
+        self.play(
+            Indicate(area_left, scale_factor=1.05, color=BLUE),
+            Indicate(label_s1, scale_factor=1.2),
+            run_time=0.8
+        )
+        self.wait(0.3)
+
+        # 步骤3：右侧计算
+        step3 = MathTex(
+            r"\int_{1}^{3} (x-1) \, dx = \Bigl[\frac{x^2}{2}-x\Bigr]_{1}^{3} = 2",
+            font_size=26, color=RED_A
+        )
+        step3.next_to(step2, DOWN, buff=0.5, aligned_edge=LEFT)
+        
+        self.play(Write(step3), run_time=1.5)
+        self.play(
+            Indicate(area_right, scale_factor=1.05, color=RED),
+            Indicate(label_s2, scale_factor=1.2),
+            run_time=0.8
+        )
+        self.wait(0.3)
+
+        # 步骤4：最终结果
+        step4 = MathTex(
+            r"= 2 + 2 = \mathbf{4}",
+            font_size=25, color=YELLOW
+        )
+        step4.next_to(step1, DOWN, buff=0.4, aligned_edge=LEFT)
+        
+        
+        self.play(Write(step4), run_time=1.2)
+        self.play(          
+            Flash(dot_vertex, color=GOLD, line_length=0.2, flash_radius=0.3),
+            run_time=0.8
+        )
+
+        self.wait(1)
+
+        self.play(LaggedStart(
+            FadeOut(graph_label, shift=RIGHT),
+            FadeOut(graph, shift=RIGHT),
+            FadeOut(axes, shift=RIGHT),
+            FadeOut(x_label, shift=RIGHT),
+            FadeOut(y_label, shift=RIGHT),
+            FadeOut(dot_vertex, shift=RIGHT),
+            FadeOut(v_line_m1, shift=RIGHT),
+            FadeOut(v_line_3, shift=RIGHT),
+            FadeOut(label_m1, shift=RIGHT),
+            FadeOut(label_1, shift=RIGHT),
+            FadeOut(label_3, shift=RIGHT),
+            FadeOut(area_left, shift=RIGHT),
+            FadeOut(area_right, shift=RIGHT),
+            FadeOut(label_s1, shift=RIGHT),
+            FadeOut(label_s2, shift=RIGHT),
+            FadeOut(step1, shift=RIGHT),
+            FadeOut(step2, shift=RIGHT),
+            FadeOut(step3, shift=RIGHT),
+            FadeOut(step4, shift=RIGHT),
+            FadeOut(expr_left, shift=RIGHT),
+            FadeOut(expr_right, shift=RIGHT),
+            FadeOut(q2_copy),
+            Uncreate(q2Line),
+            lag_ratio=.3),
+            run_time=1
+        )
+
+        #=================q4================
+
+        q3_rec=AnimeTools.EmphasizeTexts(
+            self,[q3_1],buff=.1,color=_color_4,
+        )
+
+         # ========== 坐标系 ==========
+        axes = Axes(
+            x_range=[-0.5, 5.2, 1],
+            y_range=[-1.1, 1.8, 1],
+            x_length=7,
+            y_length=5,
+            axis_config={"include_tip": False, "color": WHITE, "stroke_width": 2},
+        ).scale(.58)
+        axes.shift(UP * .4+RIGHT*.3)
+        
+        x_label = MathTex("x", font_size=24).next_to(axes.x_axis.get_end(), RIGHT, buff=0.1)
+        y_label = MathTex("y", font_size=24).next_to(axes.y_axis.get_end(), UP, buff=0.1)
+        
+        self.play(Create(axes), Write(x_label), Write(y_label), run_time=1)
+        
+        # ========== 函数图像（手绘感） ==========
+        graph = axes.plot(
+            lambda x: -x**2 + 6*x - 8,
+            x_range=[1.7, 4.3],
+            color=YELLOW,
+            stroke_width=3
+        )
+        graph_label = MathTex(r"y=-x^2+6x-8", font_size=22, color=YELLOW)
+        graph_label.next_to(axes.c2p(4.2, -.5), DOWN, buff=0.3)
+        
+        self.play(
+            Create(graph, run_time=2.5, rate_func=rate_functions.ease_in_out_sine),
+            FadeIn(graph_label, shift=RIGHT, run_time=0.8)
+        )
+        self.wait(0.3)
+
+        # ========== 求根过程 ==========
+        root_step = MathTex(r"-x^2+6x-8=0 \Rightarrow (x-2)(x-4)=0", font_size=26, color=_color_7)
+        root_step.next_to(q3_1, DOWN, buff=0.3)
+        self.play(Write(root_step), run_time=1)
+        self.wait(0.3)
+        
+        # ========== 交点与顶点 ==========
+        dot_2 = Dot(axes.c2p(2, 0), color=GREEN, radius=0.08)
+        dot_4 = Dot(axes.c2p(4, 0), color=GREEN, radius=0.08)
+        dot_v = Dot(axes.c2p(3, 1), color=RED, radius=0.08)
+        
+        lbl_2 = MathTex(r"(2,0)", font_size=22, color=GREEN).next_to(dot_2, DOWN, buff=0.1).shift(RIGHT*.2)
+        lbl_4 = MathTex(r"(4,0)", font_size=22, color=GREEN).next_to(dot_4, DOWN, buff=0.1).shift(RIGHT*.4)
+        lbl_v = MathTex(r"(3,1)", font_size=22, color=RED).next_to(dot_v, UP, buff=0.12)
+        
+        self.play(
+            FadeIn(dot_2, scale=2), FadeIn(dot_4, scale=2),
+            Write(lbl_2), Write(lbl_4),
+            run_time=1
+        )
+        self.play(
+            FadeIn(dot_v, scale=2), Write(lbl_v),
+            run_time=0.8
+        )
+        self.wait(0.3)
+
+        # ========== 区域填充（丝滑铺开） ==========
+        area = axes.get_area(graph, x_range=[2, 4], color=BLUE, opacity=0.45)
+        area_lbl = MathTex(r"S", font_size=30, color=BLUE).move_to(axes.c2p(3, 0.35))
+        
+        self.play(
+            FadeIn(area, rate_func=rate_functions.ease_out_expo),
+            FadeIn(area_lbl, shift=UP),
+            run_time=1.5
+        )
+        self.wait(0.5)
+
+        # ========== 积分计算（右侧逐步展开） ==========
+        calc = VGroup(
+            MathTex(r"S = \int_{2}^{4} (-x^2+6x-8)\,dx", font_size=27),
+            MathTex(r"= \Bigl[-\frac{x^3}{3}+3x^2-8x\Bigr]_{2}^{4}", font_size=25),
+            MathTex(r"= \left(-\frac{64}{3}+16\right) - \left(-\frac{8}{3}-4\right)", font_size=23),
+            MathTex(r"= -\frac{16}{3} + \frac{20}{3}", font_size=25),
+            MathTex(r"= \mathbf{\frac{4}{3}}", font_size=25, color=YELLOW)
+        ).arrange(DOWN, buff=0.5, aligned_edge=LEFT)
+        calc.to_edge(RIGHT, buff=0.3).shift(DOWN * .3)
+        # calc.align_to(q3_1, UP)
+        
+        for i, step in enumerate(calc):
+            if i == 0:
+                self.play(Write(step), run_time=.8)
+            elif i == len(calc) - 1:
+                box = SurroundingRectangle(step, color=GOLD, buff=0.2, corner_radius=0.1)
+                self.play(Write(step), Create(box), run_time=1.2)
+                self.play(
+                    Indicate(area, scale_factor=1.05, color=GOLD),
+                    Indicate(area_lbl, scale_factor=1.3),
+                    Flash(dot_v, color=GOLD, line_length=0.15, flash_radius=0.25),
+                    run_time=0.8
+                )
+            else:
+                self.play(Write(step), run_time=1)
+            self.wait(0.3)
+        
+        self.wait(2)
+        
+        # 结束淡出
+        self.play(
+            *[FadeOut(mob) for mob in self.mobjects],
+            run_time=1.5
+        )
